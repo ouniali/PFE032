@@ -9,8 +9,10 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
 }
+
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.junit.platform:junit-platform-launcher:1.9.3")
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -27,6 +29,10 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = "11"
         targetCompatibility = "11"
+    }
+
+    withType<Test> {
+        useJUnitPlatform()
     }
 
     patchPluginXml {
