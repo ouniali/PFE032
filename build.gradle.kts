@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("jacoco")
+    id("org.sonarqube") version "4.2.0.3129"
     id("org.jetbrains.intellij") version "1.12.0"
 }
 
@@ -11,8 +13,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("org.junit.platform:junit-platform-launcher:1.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -33,6 +35,12 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform()
+        // fixes 0% coverage bug
+        configure<JacocoTaskExtension> {
+            isIncludeNoLocationClasses = true
+            excludes = listOf("jdk.internal.*")
+        }
+        finalizedBy(jacocoTestReport)
     }
 
     patchPluginXml {
@@ -48,5 +56,23 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
+    }
+
+    sonar {
+        properties {
+            property("sonar.projectKey", "pfe032_leakage-analysis")
+            property("sonar.organization", "pfe032")
+            property("sonar.host.url", "https://sonarcloud.io")
+        }
+    }
+
+    named("sonar").configure {
+        dependsOn(test)
     }
 }
