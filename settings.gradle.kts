@@ -1,1 +1,1 @@
-rootProject.name = "leakage-analysis-plugin"
+rootProject.name = "PFE032"
