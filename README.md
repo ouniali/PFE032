@@ -3,6 +3,12 @@
 ![Build](https://github.com/fwilhelmy/PFE032/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pfe032_leakage-analysis&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pfe032_leakage-analysis)
+
+## Build
+
+1. build and run docker container ``docker compose up``
+2. run plugin ``./gradlew runIde``
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
