@@ -1,5 +1,5 @@
 // Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-package etsmtl.ca.leakanalysis.toolWindow;
+package ca.etsmtl.leakageanalysisplugin.toolWindow;
 
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -8,7 +8,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import etsmtl.ca.leakanalysis.leakageAnalysis.DummyLeakageType;
+import ca.etsmtl.leakageanalysisplugin.leakageAnalysis.DummyLeakageType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

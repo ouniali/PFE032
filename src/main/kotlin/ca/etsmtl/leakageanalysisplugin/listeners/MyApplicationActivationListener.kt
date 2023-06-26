@@ -1,4 +1,4 @@
-package com.github.fwilhelmy.pfe032.listeners
+package ca.etsmtl.leakageanalysisplugin.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

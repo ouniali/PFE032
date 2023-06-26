@@ -1,6 +1,6 @@
-package etsmtl.ca.leakanalysis.toolWindow;
+package ca.etsmtl.leakageanalysisplugin.toolWindow;
 
-import etsmtl.ca.leakanalysis.leakageAnalysis.ILeakageType;
+import ca.etsmtl.leakageanalysisplugin.leakageAnalysis.ILeakageType;
 
 import javax.swing.*;
 import java.awt.*;

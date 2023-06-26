@@ -1,4 +1,4 @@
-package etsmtl.ca.leakanalysis.services;
+package ca.etsmtl.leakageanalysisplugin.services;
 
 import com.intellij.openapi.components.Service;
 import okhttp3.*;
