@@ -1,9 +1,9 @@
-package com.github.fwilhelmy.pfe032.services
+package ca.etsmtl.leakageanalysisplugin.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.fwilhelmy.pfe032.MyBundle
+import ca.etsmtl.leakageanalysisplugin.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

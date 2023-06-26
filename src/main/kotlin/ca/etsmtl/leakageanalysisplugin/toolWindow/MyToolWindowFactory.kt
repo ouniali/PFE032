@@ -1,4 +1,4 @@
-package com.github.fwilhelmy.pfe032.toolWindow
+package ca.etsmtl.leakageanalysisplugin.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.fwilhelmy.pfe032.MyBundle
-import com.github.fwilhelmy.pfe032.services.MyProjectService
+import ca.etsmtl.leakageanalysisplugin.MyBundle
+import ca.etsmtl.leakageanalysisplugin.services.MyProjectService
 import javax.swing.JButton
 
 

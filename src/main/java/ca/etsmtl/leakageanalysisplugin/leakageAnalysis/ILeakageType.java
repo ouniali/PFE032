@@ -1,4 +1,4 @@
-package etsmtl.ca.leakanalysis.leakageAnalysis;
+package ca.etsmtl.leakageanalysisplugin.leakageAnalysis;
 
 public abstract class ILeakageType
 {

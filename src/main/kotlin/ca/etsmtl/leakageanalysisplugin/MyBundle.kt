@@ -1,4 +1,4 @@
-package com.github.fwilhelmy.pfe032
+package ca.etsmtl.leakageanalysisplugin
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
