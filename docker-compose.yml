@@ -1,0 +1,11 @@
+version: "3"
+services:
+  leakage_analysis:
+    build: ./leakage-analysis
+    ports:
+      - "5000:5000"
+    environment:
+      - ENV PYTHONUNBUFFERED=1
+      - SONAR_FORCEAUTHENTICATION=false
+    volumes:
+      - ./leakage-analysis/uploads:/app/leakage-analysis/uploads

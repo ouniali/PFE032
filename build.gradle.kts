@@ -25,6 +25,7 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 //    implementation(libs.annotations)
 }
 
@@ -94,9 +95,7 @@ tasks {
         changeNotes = properties("pluginVersion").map { pluginVersion ->
             with(changelog) {
                 renderItem(
-                        (getOrNull(pluginVersion) ?: getUnreleased())
-                                .withHeader(false)
-                                .withEmptySections(false),
+                        (getOrNull(pluginVersion) ?: getUnreleased()).withHeader(false).withEmptySections(false),
                         Changelog.OutputType.HTML,
                 )
             }
@@ -128,7 +127,6 @@ tasks {
     }
 
     withType<Test> {
-//        useJUnitPlatform()
         // fixes 0% coverage bug
         configure<JacocoTaskExtension> {
             isIncludeNoLocationClasses = true
@@ -142,7 +140,6 @@ tasks {
             xml.required.set(true)
         }
     }
-
 
     named("sonarqube").configure {
         dependsOn(test)

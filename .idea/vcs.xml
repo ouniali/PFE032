@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/leakage-analysis" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/leakage-analysis/pyright" vcs="Git" />
   </component>
 </project>
