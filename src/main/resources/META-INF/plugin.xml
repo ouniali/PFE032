@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>ca.etsmtl.leakanalysis</id>
+    <id>ca.etsmtl.leakageanalysisplugin</id>
     <name>Leakage Analysis</name>
     <vendor>ETS</vendor>
 
@@ -10,15 +10,15 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.fwilhelmy.pfe032.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="ca.etsmtl.leakageanalysisplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Leakage Analysis" secondary="true" icon="AllIcons.Toolwindows.ToolWindowFind" anchor="right"
-                    factoryClass="etsmtl.ca.leakanalysis.toolWindow.LeakageToolWindowFactory"/>
+                    factoryClass="ca.etsmtl.leakageanalysisplugin.toolWindow.LeakageToolWindowFactory"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.fwilhelmy.pfe032.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="ca.etsmtl.leakageanalysisplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 </idea-plugin>
