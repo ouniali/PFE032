@@ -5,7 +5,9 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - ENV PYTHONUNBUFFERED=1
+      - PYTHONUNBUFFERED=1
       - SONAR_FORCEAUTHENTICATION=false
     volumes:
-      - ./leakage-analysis/uploads:/app/leakage-analysis/uploads
+      - ./leakage-analysis/src:/app/leakage-analysis/src
+      - ./leakage-analysis/static:/app/leakage-analysis/static
+      - ./leakage-analysis/uploads:/var/www/uploads
