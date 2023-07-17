@@ -1,10 +1,20 @@
 // Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package ca.etsmtl.leakageanalysisplugin.windows;
 
+import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
+import com.intellij.ide.projectView.impl.ProjectViewPane;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.VerticalFlowLayout;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -13,12 +23,12 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 
 // TODO Create Task: Cleanup the ToolWindow code (Rename correctly, etc..)
 public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware
 {
-
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow)
     {
@@ -60,23 +70,77 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             return leakagePanel;
         }
 
-        private void analyzeRepos()
+        public VirtualFile selectFile()
         {
-            // TODO
+            Project project = ProjectManager.getInstance().getOpenProjects()[0];
+            assert project != null;
+            VirtualFile chooseFile = project.getBaseDir();
+            FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
+            return FileChooser.chooseFile(descriptor, project, chooseFile);
+        }
 
-            for (LeakageTypeGUI leakageType: leakageTypes)
+        private void analyzeSelectedFile()
+        {
+            VirtualFile file = selectFile();
+
+            if (file == null)
             {
-                // TODO Get a list of all selected files
+                return;
+            }
+
+            String filePath = file.getPath();
+
+            try
+            {
+                JSONObject data = leakageApiService.analyze(filePath);
+
+                for (LeakageTypeGUI leakageType: leakageTypes)
+                {
+                    leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
+                }
+            }
+            catch (RuntimeException e)
+            {
+                Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
             }
         }
 
-        private void analyzeFile()
+        private void analyzeCurrentFile()
         {
-            JSONObject data = leakageApiService.analyzeFile("week02_extra_data_preprocessing_example_full.ipynb");
+            // TODO FINISH AND CLEANUP
+            // NOT WORKING CURRENTLY
+            Project project = ProjectManager.getInstance().getOpenProjects()[0];
+            ProjectRootManager.getInstance(project).getFileIndex().iterateContent(file -> {
+                System.out.println("File: " + file.getPath());
+                return true;
+            });
+            AbstractProjectViewPane view = ProjectView.getInstance(project).getCurrentProjectViewPane();
 
-            for (LeakageTypeGUI leakageType: leakageTypes)
+            if (view == null)
             {
-                leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            Object[] nodes = view.getSelectedPath().getPath();
+
+            for(int i=0;i<nodes.length;i++)
+            {
+                sb.append(File.separatorChar).append(nodes[i].toString());
+            }
+
+            try
+            {
+                JSONObject data = leakageApiService.analyze(sb.toString());
+
+                for (LeakageTypeGUI leakageType: leakageTypes)
+                {
+                    leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
+                }
+            }
+            catch (RuntimeException e)
+            {
+                Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
             }
         }
 
@@ -92,23 +156,23 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         private JPanel createControlsPanel(ToolWindow toolWindow) {
             JPanel controlsPanel = new JPanel();
 
-            JButton analyzeReposButton = new JButton("Analyze repository");
-            analyzeReposButton.addActionListener(e ->
+            JButton analyzeSelectedFileButton = new JButton("Select File");
+            analyzeSelectedFileButton.addActionListener(e ->
             {
-                analyzeReposButton.setEnabled(false);
-                analyzeRepos();
-                analyzeReposButton.setEnabled(true);
+                analyzeSelectedFileButton.setEnabled(false);
+                analyzeSelectedFile();
+                analyzeSelectedFileButton.setEnabled(true);
             });
-            controlsPanel.add(analyzeReposButton);
+            controlsPanel.add(analyzeSelectedFileButton);
 
-            JButton analyzeFileButton = new JButton("Analyze selected file");
-            analyzeFileButton.addActionListener(e ->
+            JButton analyzeCurrentFileButton = new JButton("Current File");
+            analyzeCurrentFileButton.addActionListener(e ->
             {
                 controlsPanel.setEnabled(false);
-                analyzeFile();
+                analyzeCurrentFile();
                 controlsPanel.setEnabled(true);
             });
-            controlsPanel.add(analyzeFileButton);
+            controlsPanel.add(analyzeCurrentFileButton);
 
             JButton resetButton = new JButton("Reset");
             resetButton.addActionListener(e ->
