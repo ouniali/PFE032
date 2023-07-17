@@ -1,36 +1,38 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
+import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import com.intellij.openapi.components.Service;
 import okhttp3.*;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 // instantiated as service (check https://plugins.jetbrains.com/docs/intellij/plugin-services.html#example)
 @Service
 public final class LeakageApiService
 {
     private final String API_URL = "http://localhost:5000";
-    private final Long timeout = 60L;
+    private final Long timeout = 120L;
 
     private OkHttpClient client;
 
     public LeakageApiService()
     {
         client = new OkHttpClient().newBuilder()
-                .callTimeout(timeout, TimeUnit.SECONDS)
+                //.callTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
                 .build();
     }
 
-    public void analyse(String filePath)
+    public JSONObject analyze(String filePath)
     {
-        //TODO combine both calls
+        String fileName = uploadFile(filePath);
+        return analyzeFile(fileName);
     }
 
-    public void uploadFile(String filePath)
+    public String uploadFile(String filePath)
     {
         String url = String.format("%s/upload", API_URL);
 
@@ -53,17 +55,21 @@ public final class LeakageApiService
                     .newCall(request)
                     .execute();
 
-            // Returns filepath saved in server
-            if (response.body() != null)
+            if (response.body() == null)
             {
-                String serverFilePath = response.body().string();
-                System.out.println(serverFilePath);
+                throw new IOException("Body is null");
             }
+
+            String serverFilePath = response.body().string();
+            String title = "Success uploading the file %s.";
+
+            Notifier.notifyInformation(String.format(title, serverFilePath),"");
+
+            return serverFilePath;
         }
         catch (IOException e)
         {
-            //TODO Handle errors
-            throw new RuntimeException(e);
+            throw new RuntimeException("There was an error uploading the file.", e);
         }
     }
 
@@ -81,23 +87,19 @@ public final class LeakageApiService
                     .newCall(request)
                     .execute();
 
-            // returns html report
             if (response.body() == null)
             {
-                return null;
+                throw new IOException("Body is null");
             }
 
-            return  new JSONObject(response.body().string());
+            String title = "Success analysing the file %s.";
+            Notifier.notifyInformation(String.format(title, filePath),"");
+
+            return new JSONObject(response.body().string());
         }
         catch (IOException e)
         {
-            //TODO Handle errors
-            throw new RuntimeException(e);
+            throw new RuntimeException("There was an error analysing the file.", e);
         }
-    }
-
-    public void notification()
-    {
-        // TODO
     }
 }
