@@ -1,22 +1,22 @@
 // Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-package ca.etsmtl.leakageanalysisplugin.toolWindow;
+package ca.etsmtl.leakageanalysisplugin.windows;
 
+import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import ca.etsmtl.leakageanalysisplugin.leakageAnalysis.DummyLeakageType;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
 // TODO Create Task: Cleanup the ToolWindow code (Rename correctly, etc..)
-public class LeakageToolWindowFactory implements ToolWindowFactory, DumbAware
+public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware
 {
 
     @Override
@@ -32,11 +32,13 @@ public class LeakageToolWindowFactory implements ToolWindowFactory, DumbAware
         private final JPanel contentPanel = new JPanel();
         private final ArrayList<LeakageTypeGUI> leakageTypes = new ArrayList<>();
 
+        private LeakageApiService leakageApiService = new LeakageApiService();
+
         public LeakageToolWindowContent(ToolWindow toolWindow)
         {
-            leakageTypes.add(new LeakageTypeGUI("Overlap Leakage", new DummyLeakageType()));
-            leakageTypes.add(new LeakageTypeGUI("Multi-Test Leakage", new DummyLeakageType()));
-            leakageTypes.add(new LeakageTypeGUI("Preprocessing Leakage", new DummyLeakageType()));
+            leakageTypes.add(new LeakageTypeGUI("Overlap Leakage", "overlap leakage"));
+            leakageTypes.add(new LeakageTypeGUI("Multi-Test Leakage", "no independence test data"));
+            leakageTypes.add(new LeakageTypeGUI("Preprocessing Leakage", "pre-processing leakage"));
 
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
@@ -52,7 +54,7 @@ public class LeakageToolWindowFactory implements ToolWindowFactory, DumbAware
 
             for (LeakageTypeGUI leakageType: leakageTypes)
             {
-                leakagePanel.add(leakageType.getPanel());
+                leakagePanel.add(leakageType.getMainPanel());
             }
 
             return leakagePanel;
@@ -60,19 +62,21 @@ public class LeakageToolWindowFactory implements ToolWindowFactory, DumbAware
 
         private void analyzeRepos()
         {
+            // TODO
+
             for (LeakageTypeGUI leakageType: leakageTypes)
             {
                 // TODO Get a list of all selected files
-                leakageType.analyze("lol");
             }
         }
 
         private void analyzeFile()
         {
+            JSONObject data = leakageApiService.analyzeFile("week02_extra_data_preprocessing_example_full.ipynb");
+
             for (LeakageTypeGUI leakageType: leakageTypes)
             {
-                // TODO Get the current file
-                leakageType.analyze("lol");
+                leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
             }
         }
 
@@ -89,15 +93,30 @@ public class LeakageToolWindowFactory implements ToolWindowFactory, DumbAware
             JPanel controlsPanel = new JPanel();
 
             JButton analyzeReposButton = new JButton("Analyze repository");
-            analyzeReposButton.addActionListener(e -> analyzeRepos());
+            analyzeReposButton.addActionListener(e ->
+            {
+                analyzeReposButton.setEnabled(false);
+                analyzeRepos();
+                analyzeReposButton.setEnabled(true);
+            });
             controlsPanel.add(analyzeReposButton);
 
             JButton analyzeFileButton = new JButton("Analyze selected file");
-            analyzeFileButton.addActionListener(e -> analyzeFile());
+            analyzeFileButton.addActionListener(e ->
+            {
+                controlsPanel.setEnabled(false);
+                analyzeFile();
+                controlsPanel.setEnabled(true);
+            });
             controlsPanel.add(analyzeFileButton);
 
             JButton resetButton = new JButton("Reset");
-            resetButton.addActionListener(e -> reset());
+            resetButton.addActionListener(e ->
+            {
+                controlsPanel.setEnabled(false);
+                reset();
+                controlsPanel.setEnabled(true);
+            });
             controlsPanel.add(resetButton);
 
             return controlsPanel;

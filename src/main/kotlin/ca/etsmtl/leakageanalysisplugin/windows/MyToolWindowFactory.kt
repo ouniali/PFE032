@@ -1,4 +1,4 @@
-package ca.etsmtl.leakageanalysisplugin.toolWindow
+package ca.etsmtl.leakageanalysisplugin.windows
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
