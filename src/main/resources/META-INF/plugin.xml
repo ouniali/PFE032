@@ -9,6 +9,11 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="TestNotification"
+                           displayType="BALLOON"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Leakage Analysis" secondary="true" icon="AllIcons.Toolwindows.ToolWindowFind" anchor="right"
                     factoryClass="ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory"/>
     </extensions>
