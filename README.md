@@ -7,8 +7,8 @@
 
 ## Build
 
-1. build and run docker container ``docker compose up``
-2. run plugin ``./gradlew runIde``
+1. Build and run docker container ``docker compose up --build``
+2. Run plugin ``./gradlew runIde``
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
