@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pfe032_leakage-analysis&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pfe032_leakage-analysis)
 
-## Build
+## Run plugin
 
 1. Build and run docker container ``docker compose up --build``
 2. Run plugin ``./gradlew runIde``
