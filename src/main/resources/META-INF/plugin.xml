@@ -5,17 +5,17 @@
     <vendor>ETS</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.python</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="ca.etsmtl.leakageanalysisplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <notificationGroup id="TestNotification"
+                           displayType="BALLOON"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Leakage Analysis" secondary="true" icon="AllIcons.Toolwindows.ToolWindowFind" anchor="right"
-                    factoryClass="ca.etsmtl.leakageanalysisplugin.toolWindow.LeakageToolWindowFactory"/>
+                    factoryClass="ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory"/>
     </extensions>
 
     <applicationListeners>
