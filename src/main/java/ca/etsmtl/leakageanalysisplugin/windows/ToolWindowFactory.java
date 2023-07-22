@@ -2,7 +2,7 @@
 package ca.etsmtl.leakageanalysisplugin.windows;
 
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
-import ca.etsmtl.leakageanalysisplugin.services.LeakageApiServiceImpl;
+import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -38,7 +38,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         private final JPanel contentPanel = new JPanel();
         private final ArrayList<LeakageTypeGUI> leakageTypes = new ArrayList<>();
 
-        private LeakageApiServiceImpl leakageAnalysisServiceImpl = new LeakageApiServiceImpl();
+        private LeakageApiService leakageApiService = new LeakageApiService();
 
         public LeakageToolWindowContent(ToolWindow toolWindow) {
             leakageTypes.add(new LeakageTypeGUI("Overlap Leakage", "overlap leakage"));
@@ -81,7 +81,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             String filePath = file.getPath();
 
             try {
-                JSONObject data = leakageAnalysisServiceImpl.analyze(filePath);
+                JSONObject data = leakageApiService.analyze(filePath);
 
                 for (LeakageTypeGUI leakageType : leakageTypes) {
                     leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
@@ -113,7 +113,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             }
 
             try {
-                JSONObject data = leakageAnalysisServiceImpl.analyze(sb.toString());
+                JSONObject data = leakageApiService.analyze(sb.toString());
 
                 for (LeakageTypeGUI leakageType : leakageTypes) {
                     leakageType.parseData(data.getJSONObject(leakageType.jsonKey));

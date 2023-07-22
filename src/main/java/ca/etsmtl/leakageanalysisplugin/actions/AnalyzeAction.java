@@ -1,6 +1,6 @@
 package ca.etsmtl.leakageanalysisplugin.actions;
 
-import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
+import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -39,7 +39,7 @@ public class AnalyzeAction extends AnAction {
         assert project != null;
         PsiFile file = CommonDataKeys.PSI_FILE.getData(context);
         assert file != null;
-        LeakageApiService service = project.getService(LeakageApiService.class);
+        LeakageService service = project.getService(LeakageService.class);
         assert service != null;
         String filePath = file.getVirtualFile().getPath();
         JSONObject data = service.analyze(filePath);

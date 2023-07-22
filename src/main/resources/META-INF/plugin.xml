@@ -27,8 +27,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Declare the project-level service -->
         <projectService
-                serviceInterface="ca.etsmtl.leakageanalysisplugin.services.LeakageApiService"
-                serviceImplementation="ca.etsmtl.leakageanalysisplugin.services.LeakageApiServiceImpl"/>
+                serviceInterface="ca.etsmtl.leakageanalysisplugin.services.LeakageService"
+                serviceImplementation="ca.etsmtl.leakageanalysisplugin.services.LeakageApiService"/>
     </extensions>
 
     <actions>
