@@ -18,7 +18,31 @@
                     factoryClass="ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory"/>
     </extensions>
 
+
     <applicationListeners>
-        <listener class="ca.etsmtl.leakageanalysisplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="ca.etsmtl.leakageanalysisplugin.listeners.MyApplicationActivationListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Declare the project-level service -->
+        <projectService
+                serviceInterface="ca.etsmtl.leakageanalysisplugin.services.LeakageApiService"
+                serviceImplementation="ca.etsmtl.leakageanalysisplugin.services.LeakageApiServiceImpl"/>
+    </extensions>
+
+    <actions>
+        <group id="leakageanalysisplugin.analyze"
+               text="_MyPlugin"
+               description="Right click on file">
+
+            <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="CutCopyPasteGroup" anchor="before"/>
+
+            <action id="AnalyzeAction"
+                    class="ca.etsmtl.leakageanalysisplugin.actions.AnalyzeAction"
+                    text="_Analyze"
+                    description="Analyze file or folder"/>
+        </group>
+    </actions>
+
 </idea-plugin>

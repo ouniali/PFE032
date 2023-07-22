@@ -2,10 +2,9 @@
 package ca.etsmtl.leakageanalysisplugin.windows;
 
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
-import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
+import ca.etsmtl.leakageanalysisplugin.services.LeakageApiServiceImpl;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
-import com.intellij.ide.projectView.impl.ProjectViewPane;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -27,25 +26,21 @@ import java.io.File;
 import java.util.ArrayList;
 
 // TODO Create Task: Cleanup the ToolWindow code (Rename correctly, etc..)
-public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware
-{
+public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware {
     @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow)
-    {
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         LeakageToolWindowContent toolWindowContent = new LeakageToolWindowContent(toolWindow);
         Content content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
 
-    private static class LeakageToolWindowContent
-    {
+    private static class LeakageToolWindowContent {
         private final JPanel contentPanel = new JPanel();
         private final ArrayList<LeakageTypeGUI> leakageTypes = new ArrayList<>();
 
-        private LeakageApiService leakageApiService = new LeakageApiService();
+        private LeakageApiServiceImpl leakageAnalysisServiceImpl = new LeakageApiServiceImpl();
 
-        public LeakageToolWindowContent(ToolWindow toolWindow)
-        {
+        public LeakageToolWindowContent(ToolWindow toolWindow) {
             leakageTypes.add(new LeakageTypeGUI("Overlap Leakage", "overlap leakage"));
             leakageTypes.add(new LeakageTypeGUI("Multi-Test Leakage", "no independence test data"));
             leakageTypes.add(new LeakageTypeGUI("Preprocessing Leakage", "pre-processing leakage"));
@@ -57,21 +52,18 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         }
 
         @NotNull
-        private JPanel createLeakagePanel()
-        {
+        private JPanel createLeakagePanel() {
             JPanel leakagePanel = new JPanel();
             leakagePanel.setLayout(new VerticalFlowLayout());
 
-            for (LeakageTypeGUI leakageType: leakageTypes)
-            {
+            for (LeakageTypeGUI leakageType : leakageTypes) {
                 leakagePanel.add(leakageType.getMainPanel());
             }
 
             return leakagePanel;
         }
 
-        public VirtualFile selectFile()
-        {
+        public VirtualFile selectFile() {
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
             assert project != null;
             VirtualFile chooseFile = project.getBaseDir();
@@ -79,34 +71,27 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             return FileChooser.chooseFile(descriptor, project, chooseFile);
         }
 
-        private void analyzeSelectedFile()
-        {
+        private void analyzeSelectedFile() {
             VirtualFile file = selectFile();
 
-            if (file == null)
-            {
+            if (file == null) {
                 return;
             }
 
             String filePath = file.getPath();
 
-            try
-            {
-                JSONObject data = leakageApiService.analyze(filePath);
+            try {
+                JSONObject data = leakageAnalysisServiceImpl.analyze(filePath);
 
-                for (LeakageTypeGUI leakageType: leakageTypes)
-                {
+                for (LeakageTypeGUI leakageType : leakageTypes) {
                     leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
                 }
-            }
-            catch (RuntimeException e)
-            {
+            } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
             }
         }
 
-        private void analyzeCurrentFile()
-        {
+        private void analyzeCurrentFile() {
             // TODO FINISH AND CLEANUP
             // NOT WORKING CURRENTLY
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
@@ -116,38 +101,30 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             });
             AbstractProjectViewPane view = ProjectView.getInstance(project).getCurrentProjectViewPane();
 
-            if (view == null)
-            {
+            if (view == null) {
                 return;
             }
 
             StringBuilder sb = new StringBuilder();
             Object[] nodes = view.getSelectedPath().getPath();
 
-            for(int i=0;i<nodes.length;i++)
-            {
+            for (int i = 0; i < nodes.length; i++) {
                 sb.append(File.separatorChar).append(nodes[i].toString());
             }
 
-            try
-            {
-                JSONObject data = leakageApiService.analyze(sb.toString());
+            try {
+                JSONObject data = leakageAnalysisServiceImpl.analyze(sb.toString());
 
-                for (LeakageTypeGUI leakageType: leakageTypes)
-                {
+                for (LeakageTypeGUI leakageType : leakageTypes) {
                     leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
                 }
-            }
-            catch (RuntimeException e)
-            {
+            } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
             }
         }
 
-        private void reset()
-        {
-            for (LeakageTypeGUI leakageType: leakageTypes)
-            {
+        private void reset() {
+            for (LeakageTypeGUI leakageType : leakageTypes) {
                 leakageType.reset();
             }
         }
