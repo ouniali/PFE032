@@ -32,8 +32,8 @@
     </extensions>
 
     <actions>
-        <group id="leakageanalysisplugin.analyze"
-               text="_MyPlugin"
+        <group id="leakageanalysisplugin.AnalyzeAction"
+               text="_Analyze"
                description="Right click on file">
 
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="CutCopyPasteGroup" anchor="before"/>

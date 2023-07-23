@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -29,7 +30,8 @@ import java.util.ArrayList;
 public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        LeakageToolWindowContent toolWindowContent = new LeakageToolWindowContent(toolWindow);
+        MessageBusConnection busConnection = ProjectManager.getInstance().getDefaultProject().getMessageBus().connect();
+        LeakageToolWindowContent toolWindowContent = new LeakageToolWindowContent(toolWindow, busConnection);
         Content content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
@@ -40,7 +42,9 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
         private LeakageApiService leakageApiService = new LeakageApiService();
 
-        public LeakageToolWindowContent(ToolWindow toolWindow) {
+        public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
+            // subscribing to listener to update leakages
+            busConnection.subscribe(UpdateLeakagesListener.TOPIC, (UpdateLeakagesListener) this::updateLeakages);
             leakageTypes.add(new LeakageTypeGUI("Overlap Leakage", "overlap leakage"));
             leakageTypes.add(new LeakageTypeGUI("Multi-Test Leakage", "no independence test data"));
             leakageTypes.add(new LeakageTypeGUI("Preprocessing Leakage", "pre-processing leakage"));
@@ -83,11 +87,15 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             try {
                 JSONObject data = leakageApiService.analyze(filePath);
 
-                for (LeakageTypeGUI leakageType : leakageTypes) {
-                    leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
-                }
+                updateLeakages(data);
             } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
+            }
+        }
+
+        private void updateLeakages(JSONObject data) {
+            for (LeakageTypeGUI leakageType : leakageTypes) {
+                leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
             }
         }
 
@@ -115,9 +123,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             try {
                 JSONObject data = leakageApiService.analyze(sb.toString());
 
-                for (LeakageTypeGUI leakageType : leakageTypes) {
-                    leakageType.parseData(data.getJSONObject(leakageType.jsonKey));
-                }
+                updateLeakages(data);
             } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
             }
