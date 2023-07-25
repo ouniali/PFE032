@@ -1,30 +1,30 @@
 package ca.etsmtl.leakageanalysisplugin.windows;
 
 
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class LeakageTypeGUI
-{
+public class LeakageTypeGUI {
     public static final String EMPTY_ANALYSIS_ICON = "/icons/empty.png"; // Empty Circle
     public static final String NO_LEAKAGE_ICON = "/icons/check.png"; // Green Check Mark
     public static final String LEAKAGE_DETECTED_ICON = "/icons/cancel.png"; // Red X
 
     private final String name;
-    public final String jsonKey;
+
+    private final LeakageType leakageType;
 
     protected JPanel mainPanel;
     protected JLabel nameLabel;
     protected JLabel countLabel;
     protected JLabel iconLabel;
 
-    public LeakageTypeGUI(String name, String jsonKey)
-    {
+    public LeakageTypeGUI(String name, LeakageType leakageType) {
         this.name = name;
-        this.jsonKey = jsonKey;
+        this.leakageType = leakageType;
 
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout(0, 20));
@@ -42,23 +42,19 @@ public class LeakageTypeGUI
 
     }
 
-    public JPanel getMainPanel()
-    {
+    public JPanel getMainPanel() {
         return mainPanel;
     }
 
-    private void setCount(String count)
-    {
+    public void setCount(String count) {
         nameLabel.setText(String.format("%s: %s", name, count));
     }
 
-    private void setIcon(String image)
-    {
+    private void setIcon(String image) {
         iconLabel.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(image))));
     }
 
-    public void parseData(JSONObject data)
-    {
+    public void parseData(JSONObject data) {
         int count = data.getInt("# detected");
 
         setCount(String.valueOf(count));
@@ -67,9 +63,12 @@ public class LeakageTypeGUI
         // TODO PARSE INSTANCES OF LEAKAGE
     }
 
-    public void reset()
-    {
+    public void reset() {
         setCount(String.valueOf(0));
         setIcon(EMPTY_ANALYSIS_ICON);
+    }
+
+    public LeakageType getType() {
+        return leakageType;
     }
 }

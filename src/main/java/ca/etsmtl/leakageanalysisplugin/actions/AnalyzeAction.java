@@ -1,5 +1,6 @@
 package ca.etsmtl.leakageanalysisplugin.actions;
 
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageResult;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import ca.etsmtl.leakageanalysisplugin.windows.UpdateLeakagesListener;
 import com.intellij.openapi.actionSystem.*;
@@ -10,9 +11,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class AnalyzeAction extends AnAction {
 
@@ -21,8 +22,16 @@ public class AnalyzeAction extends AnAction {
         MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
         UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
         LeakageService service = project.getService(LeakageService.class);
-        JSONObject data = service.analyze(filePath);
-        listener.updateLeakages(data);
+        LeakageResult result = service.analyze(filePath);
+        listener.updateLeakages(result);
+    }
+
+    private static void analyzeDirectory(Project project, PsiDirectory directory) {
+        List<String> filePaths = Arrays.stream(directory.getFiles()).map(f -> f.getVirtualFile().getPath()).toList();
+        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
+        UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
+        LeakageService service = project.getService(LeakageService.class);
+        // TODO: search in depth files that are notebooks
     }
 
     private boolean isSupportedFile(PsiFile file) {
@@ -63,8 +72,7 @@ public class AnalyzeAction extends AnAction {
         if (element instanceof PsiFile file) {
             analyzeFile(project, file);
         } else if (element instanceof PsiDirectory directory) {
-            System.out.println("directory: " + directory);
-            Arrays.stream(directory.getFiles()).forEach(file -> analyzeFile(project, file));
+            analyzeDirectory(project, directory);
         }
     }
 }
