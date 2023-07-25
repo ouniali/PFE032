@@ -1,17 +1,29 @@
 package ca.etsmtl.leakageanalysisplugin.actions;
 
-import ca.etsmtl.leakageanalysisplugin.services.LeakageApiService;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import ca.etsmtl.leakageanalysisplugin.windows.UpdateLeakagesListener;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 public class AnalyzeAction extends AnAction {
+
+    private static void analyzeFile(Project project, PsiFile file) {
+        String filePath = file.getVirtualFile().getPath();
+        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
+        UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
+        LeakageService service = project.getService(LeakageService.class);
+        JSONObject data = service.analyze(filePath);
+        listener.updateLeakages(data);
+    }
 
     private boolean isSupportedFile(PsiFile file) {
         return file != null && file.getFileType().getDefaultExtension().equals("ipynb");
@@ -27,9 +39,9 @@ public class AnalyzeAction extends AnAction {
             presentation.setEnabled(false);
             return;
         }
-        PsiFile file = CommonDataKeys.PSI_FILE.getData(context);
-        // No file selected or file not supported
-        if (!isSupportedFile(file)) {
+        PsiElement element = context.getData(CommonDataKeys.PSI_ELEMENT);
+        // Is a file
+        if (element instanceof PsiFile file && !isSupportedFile(file)) {
             presentation.setVisible(false);
             presentation.setEnabled(false);
         }
@@ -42,19 +54,17 @@ public class AnalyzeAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        // Using the event, create and show a dialog
-        DataContext context = e.getDataContext();
-        System.out.println("context");
         Project project = e.getProject();
-        assert project != null;
-        PsiFile file = CommonDataKeys.PSI_FILE.getData(context);
-        assert file != null;
-        String filePath = file.getVirtualFile().getPath();
-        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
-        UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
-        LeakageService service = project.getService(LeakageService.class);
-        JSONObject data = service.analyze(filePath);
-        listener.updateLeakages(data);
-        System.out.println("data: " + data);
+        if (project == null) {
+            return;
+        }
+        DataContext context = e.getDataContext();
+        PsiElement element = context.getData(CommonDataKeys.PSI_ELEMENT);
+        if (element instanceof PsiFile file) {
+            analyzeFile(project, file);
+        } else if (element instanceof PsiDirectory directory) {
+            System.out.println("directory: " + directory);
+            Arrays.stream(directory.getFiles()).forEach(file -> analyzeFile(project, file));
+        }
     }
 }
