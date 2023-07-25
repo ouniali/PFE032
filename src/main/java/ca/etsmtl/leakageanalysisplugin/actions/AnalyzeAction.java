@@ -4,6 +4,8 @@ import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageResult;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import ca.etsmtl.leakageanalysisplugin.windows.UpdateLeakagesListener;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiDirectory;
@@ -12,6 +14,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,10 +34,23 @@ public class AnalyzeAction extends AnAction {
         MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
         UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
         LeakageService service = project.getService(LeakageService.class);
-        // TODO: search in depth files that are notebooks
+        List<PsiFile> files = new ArrayList<>();
+        getSupportedFiles(directory, files);
+        System.out.println(files);
+        // TODO: create/use service method to analyze multiple files at once
     }
 
-    private boolean isSupportedFile(PsiFile file) {
+    private static void getSupportedFiles(PsiDirectory directory, List<PsiFile> files) {
+        for (PsiElement element : directory.getChildren()) {
+            if (element instanceof PsiDirectory subDirectory) {
+                getSupportedFiles(subDirectory, files);
+            } else if (element instanceof PsiFile file && isSupportedFile(file)) {
+                files.add(file);
+            }
+        }
+    }
+
+    private static boolean isSupportedFile(PsiFile file) {
         return file != null && file.getFileType().getDefaultExtension().equals("ipynb");
     }
 
@@ -67,12 +83,17 @@ public class AnalyzeAction extends AnAction {
         if (project == null) {
             return;
         }
-        DataContext context = e.getDataContext();
-        PsiElement element = context.getData(CommonDataKeys.PSI_ELEMENT);
-        if (element instanceof PsiFile file) {
-            analyzeFile(project, file);
-        } else if (element instanceof PsiDirectory directory) {
-            analyzeDirectory(project, directory);
-        }
+        new Task.Backgroundable(project, "Analyzing file(s)") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                DataContext context = e.getDataContext();
+                PsiElement element = context.getData(CommonDataKeys.PSI_ELEMENT);
+                if (element instanceof PsiFile file) {
+                    analyzeFile(project, file);
+                } else if (element instanceof PsiDirectory directory) {
+                    analyzeDirectory(project, directory);
+                }
+            }
+        };
     }
 }
