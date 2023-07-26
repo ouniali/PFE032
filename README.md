@@ -12,13 +12,17 @@
 
 ## Usage
 
-### Menu action
+### Menu Action
 
-1. In the project view click on a Jupyter Notebook file or folder
+1. In the project view, click on a Jupyter Notebook file or folder
 2. Click on the ``Analyze`` menu action to analyze
     - If it's a folder, it will check for all the Jupyter Notebook files and run the analysis for each
-    - If it's a file, it will only send it for analysis
+
+![Analyze file](.github/images/run_analyze_action.png)
+
 3. The results are displayed in the **Leakage Analysis** window
+
+![Displayed results](.github/images/displayed_analysis_results.png)
 
 ## Template ToDo list
 
