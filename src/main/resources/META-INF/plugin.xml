@@ -1,5 +1,5 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-pluginimplements>
     <id>ca.etsmtl.leakageanalysisplugin</id>
     <name>Leakage Analysis</name>
     <vendor>ETS</vendor>
@@ -35,8 +35,9 @@
             <action id="AnalyzeAction"
                     class="ca.etsmtl.leakageanalysisplugin.actions.AnalyzeAction"
                     text="_Analyze"
-                    description="Analyze file or folder"/>
+                    description="Analyze file or folder"
+                    icon="AllIcons.Actions.DependencyAnalyzer" />
         </group>
     </actions>
 
-</idea-plugin>
+</idea-pluginimplements>
