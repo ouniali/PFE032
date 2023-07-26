@@ -9,7 +9,5 @@ public interface AnalyzeTaskListener {
 
     Topic<AnalyzeTaskListener> TOPIC = Topic.create("UpdateLeakages", AnalyzeTaskListener.class);
 
-    void updateResults(AnalysisResult result);
-
     void updateResults(List<AnalysisResult> results);
 }

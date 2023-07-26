@@ -12,9 +12,9 @@ import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AnalyzeTask extends Task.Backgroundable {
     public static final String TITLE = "Analyzing file(s)...";
@@ -29,6 +29,42 @@ public class AnalyzeTask extends Task.Backgroundable {
         }
     }
 
+    private static void notifyResults(List<AnalysisResult> results) {
+        int successCount = (int) results.stream().filter(r -> r.getStatus().equals(AnalysisStatus.SUCCESS)).count();
+        int failedCount = results.size() - successCount;
+        if (successCount > 0) {
+            String successTitle = String.format("Success analyzing %d file(s).", successCount);
+            Notifier.notifyInformation(successTitle, "");
+        }
+        if (failedCount > 0) {
+            notifyErrors(results, failedCount);
+        }
+    }
+
+    private static void notifyErrors(List<AnalysisResult> results, int failedCount) {
+        Optional<AnalysisResult> firstFailedResult = results.stream()
+                .filter(r -> r.getStatus().equals(AnalysisStatus.FAILED)).findFirst();
+        firstFailedResult.ifPresent(result -> {
+            // displays first error in notification
+            String filePath = result.getFilePath();
+            String errors = result.getErrors().stream()
+                    .map(AnalyzeTask::getErrorText).collect(Collectors.joining("\n"));
+            String firstFailedError = """
+                    <p>Errors in file %s</p>
+                    <ul>%s</ul>
+                    """.formatted(filePath, errors);
+            String failedTitle = String.format("Failed analyzing %d file(s).", failedCount);
+            Notifier.notifyError(failedTitle, firstFailedError);
+        });
+    }
+
+    private static String getErrorText(Exception e) {
+        if (e.getCause() == null) {
+            return "<li>%s</li>".formatted(e.getMessage());
+        }
+        return "<li>%s -> %s</li>".formatted(e.getMessage(), e.getCause().getMessage());
+    }
+
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         if (filePaths == null) {
@@ -36,46 +72,9 @@ public class AnalyzeTask extends Task.Backgroundable {
         }
         MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
         AnalyzeTaskListener listener = bus.syncPublisher(AnalyzeTaskListener.TOPIC);
-        List<AnalysisResult> results = new ArrayList<>();
         // TODO: use progress indicator
-        if (filePaths.size() == 1) {
-            String filePath = filePaths.get(0);
-            AnalysisResult result = service.analyze(filePath);
-            results.add(result);
-            listener.updateResults(result);
-            notifyResult(result);
-        } else if (filePaths.size() > 1) {
-            results = service.analyze(filePaths);
-            listener.updateResults(results);
-            notifyResults(results);
-        }
-    }
-
-    private void notifyResult(AnalysisResult result) {
-        if (result == null) {
-            return;
-        }
-        String title;
-        String content;
-        if (result.isSuccessful()) {
-            title = "Success analysing the file %s.";
-            content = "";
-        } else {
-            Exception error = result.getErrors().get(0);
-            title = error.getMessage();
-            content = error.getCause().getMessage();
-        }
-        File file = new File(result.getFilePath());
-        Notifier.notifyInformation(String.format(title, file.getName()), content);
-    }
-
-    private static void notifyResults(List<AnalysisResult> results) {
-        int successCount = (int) results.stream().filter(r -> r.getStatus().equals(AnalysisStatus.SUCCESS)).count();
-        int failedCount = results.size() - successCount;
-        String title = String.format("Success analyzing %d file(s).", successCount);
-        if (failedCount > 0) {
-            title = title.concat(String.format(" Failed analyzing %d file(s).", failedCount));
-        }
-        Notifier.notifyInformation(title, "");
+        List<AnalysisResult> results = service.analyze(filePaths);
+        listener.updateResults(results);
+        notifyResults(results);
     }
 }

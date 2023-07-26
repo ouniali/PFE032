@@ -1,6 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.actions;
 
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask;
+import ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
@@ -11,20 +12,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class AnalyzeAction extends AnAction {
 
     private static void getSupportedFiles(@NotNull PsiDirectory directory, List<PsiFile> files) {
         for (PsiElement element : directory.getChildren()) {
             if (element instanceof PsiDirectory subDirectory) {
                 getSupportedFiles(subDirectory, files);
-            } else if (element instanceof PsiFile file && isSupportedFile(file)) {
+            } else if (element instanceof PsiFile file && isFileSupported(file)) {
                 files.add(file);
             }
         }
     }
 
-    private static boolean isSupportedFile(PsiFile file) {
-        return file != null && file.getFileType().getDefaultExtension().equals("ipynb");
+    public static boolean isFileSupported(@NotNull PsiFile file) {
+        return AnalysisUtil.isFileSupported(file.getVirtualFile().getPath());
     }
 
     @Override
@@ -38,7 +40,7 @@ public class AnalyzeAction extends AnAction {
             return;
         }
         PsiElement element = context.getData(CommonDataKeys.PSI_ELEMENT);
-        if (element instanceof PsiFile file && !isSupportedFile(file)) {
+        if (element instanceof PsiFile file && !isFileSupported(file)) {
             presentation.setVisible(false);
             presentation.setEnabled(false);
         }

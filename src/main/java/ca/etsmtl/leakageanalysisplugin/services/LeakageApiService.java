@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.isFileSupported;
+
 @Service(Service.Level.PROJECT)
 public final class LeakageApiService implements LeakageService {
     private final String API_URL = "http://localhost:5000";
@@ -42,7 +44,6 @@ public final class LeakageApiService implements LeakageService {
         return result;
     }
 
-    @Override
     public List<AnalysisResult> analyze(List<String> filePaths) {
         List<AnalysisResult> results = new ArrayList<>();
         for (String filePath : filePaths) {
@@ -53,6 +54,9 @@ public final class LeakageApiService implements LeakageService {
     }
 
     public String uploadFile(String filePath) {
+        if (!isFileSupported(filePath)) {
+            throw new IllegalArgumentException("File not supported.");
+        }
         String url = String.format("%s/upload", API_URL);
 
         File file = new File(filePath);

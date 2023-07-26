@@ -17,12 +17,12 @@ public class Notifier
 
     public static void notifyInformation(String title, String content)
     {
-        notify("TestNotification", title, content, NotificationType.INFORMATION);
+        notify("AnalyzeNotification", title, content, NotificationType.INFORMATION);
     }
 
     public static void notifyError(String title, String content)
     {
-        notify("TestNotification", title, content, NotificationType.ERROR);
+        notify("AnalyzeNotification", title, content, NotificationType.ERROR);
     }
 
     private static void notify(String group, String title, String content, NotificationType type)

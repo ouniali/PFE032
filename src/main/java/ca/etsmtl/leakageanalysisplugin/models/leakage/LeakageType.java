@@ -5,7 +5,7 @@ import java.util.Arrays;
 public enum LeakageType {
     OVERLAP("overlap leakage"),
     PREPROCESSING("pre-processing leakage"),
-    TESTDATA("no independence test data");
+    MULTITEST("no independence test data");
 
     private final String name;
 
