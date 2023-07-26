@@ -48,10 +48,6 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
         public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
             busConnection.subscribe(AnalyzeTaskListener.TOPIC, new AnalyzeTaskListener() {
-//                public void updateResults(AnalysisResult result) {
-//                    LeakageToolWindowContent.this.updateResults(result);
-//                }
-
                 @Override
                 public void updateResults(List<AnalysisResult> results) {
                     LeakageToolWindowContent.this.updateResults(results);
@@ -69,6 +65,9 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
         private void updateResults(List<AnalysisResult> results) {
             // TODO: FILL WINDOW TOOL WITH RESULTS (WILL NEED APPROPRIATE LAYOUT)
+            if (results.size() == 0) {
+                return;
+            }
             // first result
             AnalysisResult result = results.get(0);
             if (result.isSuccessful()) {

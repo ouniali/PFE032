@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.getFileName;
+
 public class AnalyzeTask extends Task.Backgroundable {
     public static final String TITLE = "Analyzing file(s)...";
     private List<String> filePaths;
@@ -50,9 +52,9 @@ public class AnalyzeTask extends Task.Backgroundable {
             String errors = result.getErrors().stream()
                     .map(AnalyzeTask::getErrorText).collect(Collectors.joining("\n"));
             String firstFailedError = """
-                    <p>Errors in file %s</p>
+                    <p>Errors in %s</p>
                     <ul>%s</ul>
-                    """.formatted(filePath, errors);
+                    """.formatted(getFileName(filePath), errors);
             String failedTitle = String.format("Failed analyzing %d file(s).", failedCount);
             Notifier.notifyError(failedTitle, firstFailedError);
         });
@@ -70,10 +72,10 @@ public class AnalyzeTask extends Task.Backgroundable {
         if (filePaths == null) {
             return;
         }
-        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
-        AnalyzeTaskListener listener = bus.syncPublisher(AnalyzeTaskListener.TOPIC);
         // TODO: use progress indicator
         List<AnalysisResult> results = service.analyze(filePaths);
+        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
+        AnalyzeTaskListener listener = bus.syncPublisher(AnalyzeTaskListener.TOPIC);
         listener.updateResults(results);
         notifyResults(results);
     }

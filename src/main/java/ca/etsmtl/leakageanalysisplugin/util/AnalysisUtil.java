@@ -15,4 +15,12 @@ public class AnalysisUtil {
         String ext = file.getPath().substring(file.getPath().lastIndexOf(".") + 1);
         return Arrays.asList(SUPPORTED_EXTS).contains(ext);
     }
+
+    public static String getFileName(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+        return file.getName();
+    }
 }

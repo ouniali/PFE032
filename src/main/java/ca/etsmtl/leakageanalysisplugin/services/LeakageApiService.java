@@ -44,15 +44,6 @@ public final class LeakageApiService implements LeakageService {
         return result;
     }
 
-    public List<AnalysisResult> analyze(List<String> filePaths) {
-        List<AnalysisResult> results = new ArrayList<>();
-        for (String filePath : filePaths) {
-            AnalysisResult result = analyze(filePath);
-            results.add(result);
-        }
-        return results;
-    }
-
     public String uploadFile(String filePath) {
         if (!isFileSupported(filePath)) {
             throw new IllegalArgumentException("File not supported.");
