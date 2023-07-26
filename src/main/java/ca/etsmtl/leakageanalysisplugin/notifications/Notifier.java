@@ -1,10 +1,3 @@
-//        List<String> filePaths = Arrays.stream(directory.getFiles()).map(f -> f.getVirtualFile().getPath()).toList();
-//        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
-//        UpdateLeakagesListener listener = bus.syncPublisher(UpdateLeakagesListener.TOPIC);
-//        LeakageService service = project.getService(LeakageService.class);
-//        JSONObject data = service.analyze(filePaths);
-//        System.out.println("data: " + data);
-//        listener.updateLeakages(data);
 package ca.etsmtl.leakageanalysisplugin.notifications;
 
 import com.intellij.notification.NotificationGroupManager;
@@ -30,9 +23,8 @@ public class Notifier
         Project project = ProjectManager.getInstance().getOpenProjects()[0];
 
         NotificationGroupManager.getInstance()
-                .getNotificationGroup(group)
-                .createNotification(title, content, type)
-                .notify(project);
+            .getNotificationGroup(group)
+            .createNotification(title, content, type)
+            .notify(project);
     }
-
 }
