@@ -9,7 +9,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup id="TestNotification"
+        <notificationGroup id="AnalyzeNotification"
                            displayType="BALLOON"/>
     </extensions>
 
@@ -17,12 +17,6 @@
         <toolWindow id="Leakage Analysis" secondary="true" icon="AllIcons.Toolwindows.ToolWindowFind" anchor="right"
                     factoryClass="ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory"/>
     </extensions>
-
-
-    <applicationListeners>
-        <listener class="ca.etsmtl.leakageanalysisplugin.listeners.MyApplicationActivationListener"
-                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Declare the project-level service -->

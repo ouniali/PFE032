@@ -1,8 +1,12 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageResult;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
+
+import java.util.List;
 
 public interface LeakageService {
 
-    LeakageResult analyze(String filePath);
+    AnalysisResult analyze(String filePath);
+
+    List<AnalysisResult> analyze(List<String> filePaths);
 }
