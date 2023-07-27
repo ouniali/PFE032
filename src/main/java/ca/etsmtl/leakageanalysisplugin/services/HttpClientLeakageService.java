@@ -19,10 +19,10 @@ import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.isFileSupported;
 
 @Service(Service.Level.PROJECT)
 public final class HttpClientLeakageService implements LeakageService {
-    private final String API_URL = "http://localhost:5000";
-    private final Long timeout = 120L;
+    private static final String BASE_URL = "http://localhost:5000";
+    private static final Long timeout = 120L;
 
-    private OkHttpClient client;
+    private final OkHttpClient client;
 
     public HttpClientLeakageService() {
         client = new OkHttpClient().newBuilder()
@@ -48,7 +48,7 @@ public final class HttpClientLeakageService implements LeakageService {
         if (!isFileSupported(filePath)) {
             throw new IllegalArgumentException("File not supported.");
         }
-        String url = String.format("%s/upload", API_URL);
+        String url = String.format("%s/upload", BASE_URL);
 
         File file = new File(filePath);
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file)).build();
@@ -69,7 +69,7 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     public JSONObject analyzeFile(String filePath) {
-        String url = String.format("%s/analyze/%s", API_URL, filePath);
+        String url = String.format("%s/analyze/%s", BASE_URL, filePath);
 
         Request request = new Request.Builder().url(url).build();
 
