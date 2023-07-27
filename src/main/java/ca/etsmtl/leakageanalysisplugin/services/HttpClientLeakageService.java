@@ -18,13 +18,13 @@ import java.util.concurrent.TimeUnit;
 import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.isFileSupported;
 
 @Service(Service.Level.PROJECT)
-public final class LeakageApiService implements LeakageService {
+public final class HttpClientLeakageService implements LeakageService {
     private final String API_URL = "http://localhost:5000";
     private final Long timeout = 120L;
 
     private OkHttpClient client;
 
-    public LeakageApiService() {
+    public HttpClientLeakageService() {
         client = new OkHttpClient().newBuilder()
                 //.callTimeout(timeout, TimeUnit.SECONDS)
                 .readTimeout(timeout, TimeUnit.SECONDS).build();
@@ -103,5 +103,4 @@ public final class LeakageApiService implements LeakageService {
         }
         return new AnalysisResult(filePath, leakages);
     }
-
 }

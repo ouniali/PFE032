@@ -22,7 +22,7 @@
         <!-- Declare the project-level service -->
         <projectService
                 serviceInterface="ca.etsmtl.leakageanalysisplugin.services.LeakageService"
-                serviceImplementation="ca.etsmtl.leakageanalysisplugin.services.LeakageApiService"/>
+                serviceImplementation="ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService"/>
     </extensions>
 
     <actions>

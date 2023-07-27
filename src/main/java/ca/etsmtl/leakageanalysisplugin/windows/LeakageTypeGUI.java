@@ -2,7 +2,6 @@ package ca.etsmtl.leakageanalysisplugin.windows;
 
 
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
-import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,15 +51,6 @@ public class LeakageTypeGUI {
 
     private void setIcon(String image) {
         iconLabel.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(image))));
-    }
-
-    public void parseData(JSONObject data) {
-        int count = data.getInt("# detected");
-
-        setCount(String.valueOf(count));
-        setIcon(count == 0 ? NO_LEAKAGE_ICON : LEAKAGE_DETECTED_ICON);
-
-        // TODO PARSE INSTANCES OF LEAKAGE
     }
 
     public void reset() {
