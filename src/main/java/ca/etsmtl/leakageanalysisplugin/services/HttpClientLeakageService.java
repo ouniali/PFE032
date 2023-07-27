@@ -4,8 +4,10 @@ import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
-import com.intellij.openapi.components.Service;
 import okhttp3.*;
+import org.apache.http.HttpException;
+import org.apache.http.entity.ContentType;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,24 +19,22 @@ import java.util.concurrent.TimeUnit;
 
 import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.isFileSupported;
 
-@Service(Service.Level.PROJECT)
 public final class HttpClientLeakageService implements LeakageService {
+    public static final MediaType ANALYZE_MEDIATYPE = MediaType.parse("application/octet-stream");
     private static final String BASE_URL = "http://localhost:5000";
-    private static final Long timeout = 120L;
-
+    private static final Long TIMEOUT = 120L;
     private final OkHttpClient client;
 
     public HttpClientLeakageService() {
         client = new OkHttpClient().newBuilder()
                 //.callTimeout(timeout, TimeUnit.SECONDS)
-                .readTimeout(timeout, TimeUnit.SECONDS).build();
+                .readTimeout(TIMEOUT, TimeUnit.SECONDS).build();
     }
 
     public AnalysisResult analyze(String filePath) {
         AnalysisResult result;
         try {
-            String fileName = uploadFile(filePath);
-            result = toAnalysisResult(filePath, analyzeFile(fileName));
+            result = toAnalysisResult(filePath, analyzeFile(filePath));
             result.setStatus(AnalysisStatus.SUCCESS);
         } catch (RuntimeException e) {
             result = new AnalysisResult(filePath);
@@ -44,45 +44,38 @@ public final class HttpClientLeakageService implements LeakageService {
         return result;
     }
 
-    public String uploadFile(String filePath) {
+    private JSONObject analyzeFile(String filePath) {
         if (!isFileSupported(filePath)) {
             throw new IllegalArgumentException("File not supported.");
         }
-        String url = String.format("%s/upload", BASE_URL);
-
+        String url = String.format("%s/analyze", BASE_URL);
         File file = new File(filePath);
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file)).build();
-
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), RequestBody.create(file, ANALYZE_MEDIATYPE)).build();
         Request request = new Request.Builder().url(url).post(requestBody).build();
-
         try {
-            Response response = client.newCall(request).execute();
-
-            if (response.body() == null) {
-                throw new IOException("Body is null");
-            }
-
-            return response.body().string();
-        } catch (IOException e) {
-            throw new RuntimeException("There was an error uploading the file.", e);
+            return getAnalyzeRequestData(request);
+        } catch (Exception e) {
+            throw new RuntimeException("There was an error analysing the file.", e);
         }
     }
 
-    public JSONObject analyzeFile(String filePath) {
-        String url = String.format("%s/analyze/%s", BASE_URL, filePath);
-
-        Request request = new Request.Builder().url(url).build();
-
-        try {
-            Response response = client.newCall(request).execute();
-
-            if (response.body() == null) {
-                throw new IOException("Body is null");
+    @NotNull
+    private JSONObject getAnalyzeRequestData(Request request) throws Exception {
+        try (Response response = client.newCall(request).execute()) {
+            String contentType = response.header("Content-Type");
+            if (contentType == null || !contentType.equals(ContentType.APPLICATION_JSON.getMimeType())) {
+                throw new IllegalStateException("Response was not of type JSON.");
             }
-
-            return new JSONObject(response.body().string());
-        } catch (IOException e) {
-            throw new RuntimeException("There was an error analysing the file.", e);
+            if (response.body() == null) {
+                throw new IOException("Body is null.");
+            }
+            JSONObject data = new JSONObject(response.body().string());
+            if (!response.isSuccessful()) {
+                String errMessage = data.has("message") ? data.getString("message") : "unknown";
+                throw new HttpException(errMessage);
+            }
+            return data;
         }
     }
 
