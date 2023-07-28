@@ -1,7 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisStatus;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import com.intellij.openapi.components.Service;

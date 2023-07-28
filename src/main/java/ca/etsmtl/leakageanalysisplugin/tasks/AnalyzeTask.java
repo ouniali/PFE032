@@ -1,7 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.tasks;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisStatus;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import com.intellij.openapi.progress.ProgressIndicator;

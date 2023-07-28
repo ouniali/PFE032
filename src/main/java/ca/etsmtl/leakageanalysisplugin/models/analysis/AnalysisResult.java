@@ -1,4 +1,6 @@
-package ca.etsmtl.leakageanalysisplugin.models.leakage;
+package ca.etsmtl.leakageanalysisplugin.models.analysis;
+
+import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
 
 import java.util.List;
 
