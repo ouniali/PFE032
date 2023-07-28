@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.getFileName;
+import static ca.etsmtl.leakageanalysisplugin.util.FilesUtil.getFileName;
 
 public class AnalyzeTask extends Task.Backgroundable {
     public static final String TITLE = "Analyzing file(s)...";

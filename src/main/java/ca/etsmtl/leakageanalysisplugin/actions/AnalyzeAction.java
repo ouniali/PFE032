@@ -1,7 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.actions;
 
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask;
-import ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil;
+import ca.etsmtl.leakageanalysisplugin.util.FilesUtil;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
@@ -26,7 +26,7 @@ public class AnalyzeAction extends AnAction {
     }
 
     public static boolean isFileSupported(@NotNull PsiFile file) {
-        return AnalysisUtil.isFileSupported(file.getVirtualFile().getPath());
+        return FilesUtil.isFileSupported(file.getVirtualFile().getPath());
     }
 
     @Override

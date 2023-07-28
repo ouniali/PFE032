@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.isFileSupported;
+import static ca.etsmtl.leakageanalysisplugin.util.FilesUtil.isFileSupported;
 
 @Service(Service.Level.PROJECT)
 public final class HttpClientLeakageService implements LeakageService {

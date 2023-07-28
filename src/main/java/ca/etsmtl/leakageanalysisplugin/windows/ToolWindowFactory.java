@@ -8,6 +8,7 @@ import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask;
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTaskListener;
+import ca.etsmtl.leakageanalysisplugin.util.FilesUtil;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -53,14 +54,59 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                     LeakageToolWindowContent.this.updateResults(results);
                 }
             });
-            leakageTypeCounters.add(new LeakageTypeGUI("Overlap Leakage", LeakageType.OVERLAP));
-            leakageTypeCounters.add(new LeakageTypeGUI("Multi-Test Leakage", LeakageType.MULTITEST));
-            leakageTypeCounters.add(new LeakageTypeGUI("Preprocessing Leakage", LeakageType.PREPROCESSING));
 
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
-            contentPanel.add(createLeakagePanel(), BorderLayout.PAGE_START);
-            contentPanel.add(createControlsPanel(toolWindow), BorderLayout.PAGE_END);
+            contentPanel.add(setupLeakagePanel(), BorderLayout.PAGE_START);
+            contentPanel.add(setupButtonsPanel(toolWindow), BorderLayout.PAGE_END);
+        }
+
+        @NotNull
+        private JPanel setupLeakagePanel() {
+            JPanel leakagePanel = new JPanel();
+            leakagePanel.setLayout(new VerticalFlowLayout());
+
+            for (LeakageType leakageType: LeakageType.values()) {
+                LeakageTypeGUI leakageTypeGUI = new LeakageTypeGUI(leakageType);
+                leakageTypeCounters.add(leakageTypeGUI);
+                leakagePanel.add(leakageTypeGUI.getMainPanel());
+            }
+
+            return leakagePanel;
+        }
+
+        @NotNull
+        private JPanel setupButtonsPanel(ToolWindow toolWindow) {
+            JPanel controlsPanel = new JPanel();
+
+            JButton analyzeSelectedFileButton = new JButton("Select File");
+            analyzeSelectedFileButton.addActionListener(e ->
+            {
+                analyzeSelectedFileButton.setEnabled(false);
+                analyzeSelectedFile();
+                analyzeSelectedFileButton.setEnabled(true);
+            });
+            controlsPanel.add(analyzeSelectedFileButton);
+
+            JButton analyzeCurrentFileButton = new JButton("Current File");
+            analyzeCurrentFileButton.addActionListener(e ->
+            {
+                controlsPanel.setEnabled(false);
+                analyzeCurrentFile();
+                controlsPanel.setEnabled(true);
+            });
+            controlsPanel.add(analyzeCurrentFileButton);
+
+            JButton resetButton = new JButton("Reset");
+            resetButton.addActionListener(e ->
+            {
+                controlsPanel.setEnabled(false);
+                reset();
+                controlsPanel.setEnabled(true);
+            });
+            controlsPanel.add(resetButton);
+
+            return controlsPanel;
         }
 
         private void updateResults(List<AnalysisResult> results) {
@@ -76,35 +122,27 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                     LeakageType leakageType = counter.getType();
                     Optional<Leakage> optLeakage = result.getLeakages().stream()
                             .filter(l -> l.getType().equals(leakageType)).findFirst();
-                    optLeakage.ifPresent(leakage -> counter.setCount(String.valueOf(leakage.getDetected())));
+                    optLeakage.ifPresent(leakage -> counter.setCount(String.valueOf(leakage.getCount())));
                 }
             }
         }
 
-        @NotNull
-        private JPanel createLeakagePanel() {
-            JPanel leakagePanel = new JPanel();
-            leakagePanel.setLayout(new VerticalFlowLayout());
-
-            for (LeakageTypeGUI leakageType : leakageTypeCounters) {
-                leakagePanel.add(leakageType.getMainPanel());
+        private VirtualFile selectFile() {
+            Project project = ProjectManager.getInstance().getOpenProjects()[0];
+            if (project == null) {
+                return null;
             }
 
-            return leakagePanel;
-        }
-
-        public VirtualFile selectFile() {
-            Project project = ProjectManager.getInstance().getOpenProjects()[0];
-            assert project != null;
             VirtualFile chooseFile = project.getBaseDir();
-            FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor();
+            FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+                    .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));;
             return FileChooser.chooseFile(descriptor, project, chooseFile);
         }
 
         private void analyzeSelectedFile() {
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
-            VirtualFile file = selectFile();
 
+            VirtualFile file = selectFile();
             if (file == null) {
                 return;
             }
@@ -148,40 +186,6 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             for (LeakageTypeGUI leakageType : leakageTypeCounters) {
                 leakageType.reset();
             }
-        }
-
-        @NotNull
-        private JPanel createControlsPanel(ToolWindow toolWindow) {
-            JPanel controlsPanel = new JPanel();
-
-            JButton analyzeSelectedFileButton = new JButton("Select File");
-            analyzeSelectedFileButton.addActionListener(e ->
-            {
-                analyzeSelectedFileButton.setEnabled(false);
-                analyzeSelectedFile();
-                analyzeSelectedFileButton.setEnabled(true);
-            });
-            controlsPanel.add(analyzeSelectedFileButton);
-
-            JButton analyzeCurrentFileButton = new JButton("Current File");
-            analyzeCurrentFileButton.addActionListener(e ->
-            {
-                controlsPanel.setEnabled(false);
-                analyzeCurrentFile();
-                controlsPanel.setEnabled(true);
-            });
-            controlsPanel.add(analyzeCurrentFileButton);
-
-            JButton resetButton = new JButton("Reset");
-            resetButton.addActionListener(e ->
-            {
-                controlsPanel.setEnabled(false);
-                reset();
-                controlsPanel.setEnabled(true);
-            });
-            controlsPanel.add(resetButton);
-
-            return controlsPanel;
         }
 
         public JPanel getContentPanel() {
