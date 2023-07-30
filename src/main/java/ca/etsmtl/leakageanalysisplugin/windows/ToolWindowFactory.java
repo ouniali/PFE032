@@ -111,7 +111,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
         private void updateResults(List<AnalysisResult> results) {
             // TODO: FILL WINDOW TOOL WITH RESULTS (WILL NEED APPROPRIATE LAYOUT)
-            if (results.size() == 0) {
+            if (results.isEmpty()) {
                 return;
             }
             // first result
