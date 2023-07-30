@@ -27,7 +27,7 @@
 
     <actions>
         <group id="leakageanalysisplugin.AnalyzeAction"
-               text="_Analyze"
+               text="_Analyze for leakage(s)"
                description="Right click on file">
 
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="CutCopyPasteGroup" anchor="before"/>

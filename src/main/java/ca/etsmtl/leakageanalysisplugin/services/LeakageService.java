@@ -1,6 +1,6 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

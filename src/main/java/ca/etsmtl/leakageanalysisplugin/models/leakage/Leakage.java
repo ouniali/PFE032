@@ -6,12 +6,12 @@ public class Leakage {
 
     private LeakageType type;
     private List<Integer> locations;
-    private int detected;
+    private int count;
 
-    public Leakage(LeakageType type, List<Integer> locations, int detected) {
+    public Leakage(LeakageType type, List<Integer> locations, int count) {
         this.type = type;
         this.locations = locations;
-        this.detected = detected;
+        this.count = count;
     }
 
     public List<Integer> getLocations() {
@@ -30,12 +30,12 @@ public class Leakage {
         this.type = type;
     }
 
-    public int getDetected() {
-        return detected;
+    public int getCount() {
+        return count;
     }
 
-    public void setDetected(int detected) {
-        this.detected = detected;
+    public void setCount(int count) {
+        this.count = count;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Leakage {
         return "Leakage{" +
                 "type=" + type +
                 ", locations=" + locations +
-                ", detected=" + detected +
+                ", detected=" + count +
                 '}';
     }
 }

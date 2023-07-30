@@ -3,7 +3,7 @@ package ca.etsmtl.leakageanalysisplugin.util;
 import java.io.File;
 import java.util.Arrays;
 
-public class AnalysisUtil {
+public class FilesUtil {
 
     public static final String[] SUPPORTED_EXTS = {"ipynb"};
 
@@ -12,8 +12,12 @@ public class AnalysisUtil {
         if (!file.exists()) {
             return false;
         }
-        String ext = file.getPath().substring(file.getPath().lastIndexOf(".") + 1);
-        return Arrays.asList(SUPPORTED_EXTS).contains(ext);
+        String extension = file.getPath().substring(file.getPath().lastIndexOf(".") + 1);
+        return isExtensionSupported(extension);
+    }
+
+    public static boolean isExtensionSupported(String extension) {
+        return Arrays.asList(SUPPORTED_EXTS).contains(extension);
     }
 
     public static String getFileName(String filePath) {
