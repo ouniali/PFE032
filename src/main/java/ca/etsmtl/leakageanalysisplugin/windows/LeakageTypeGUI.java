@@ -7,9 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LeakageTypeGUI {
-    private interface LeakageInstance {
-
-    }
 
     private final LeakageType leakageType;
 

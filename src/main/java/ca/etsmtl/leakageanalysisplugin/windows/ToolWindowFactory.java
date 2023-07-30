@@ -48,13 +48,8 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         private final ArrayList<LeakageTypeGUI> leakageTypeCounters = new ArrayList<>();
 
         public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
-            busConnection.subscribe(AnalyzeTaskListener.TOPIC, new AnalyzeTaskListener() {
-                @Override
-                public void updateResults(List<AnalysisResult> results) {
-                    LeakageToolWindowContent.this.updateResults(results);
-                }
-            });
-
+            busConnection.subscribe(AnalyzeTaskListener.TOPIC,
+                    (AnalyzeTaskListener) LeakageToolWindowContent.this::updateResults);
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
             contentPanel.add(setupLeakagePanel(), BorderLayout.PAGE_START);
@@ -66,7 +61,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             JPanel leakagePanel = new JPanel();
             leakagePanel.setLayout(new VerticalFlowLayout());
 
-            for (LeakageType leakageType: LeakageType.values()) {
+            for (LeakageType leakageType : LeakageType.values()) {
                 LeakageTypeGUI leakageTypeGUI = new LeakageTypeGUI(leakageType);
                 leakageTypeCounters.add(leakageTypeGUI);
                 leakagePanel.add(leakageTypeGUI.getMainPanel());
@@ -135,7 +130,8 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
             VirtualFile chooseFile = project.getBaseDir();
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                    .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));;
+                    .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));
+            ;
             return FileChooser.chooseFile(descriptor, project, chooseFile);
         }
 
@@ -175,7 +171,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             try {
                 // TODO: USE TASK INSTEAD (see analyzeSelectedFile(...))
                 LeakageService leakageApiService = project.getService(LeakageService.class);
-                AnalysisResult result = leakageApiService.analyze(sb.toString());
+                AnalysisResult result = leakageApiService.analyzeFile(sb.toString());
                 updateResults(List.of(result));
             } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
