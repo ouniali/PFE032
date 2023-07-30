@@ -1,7 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.tasks;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisStatus;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ca.etsmtl.leakageanalysisplugin.util.AnalysisUtil.getFileName;
+import static ca.etsmtl.leakageanalysisplugin.util.FilesUtil.getFileName;
 
 public class AnalyzeTask extends Task.Backgroundable {
     public static final String TITLE = "Analyzing file(s)...";

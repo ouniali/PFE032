@@ -1,6 +1,6 @@
 package ca.etsmtl.leakageanalysisplugin.tasks;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.AnalysisResult;
+import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
 import com.intellij.util.messages.Topic;
 
 import java.util.List;
