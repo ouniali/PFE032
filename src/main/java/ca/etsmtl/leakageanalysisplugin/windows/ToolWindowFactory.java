@@ -3,6 +3,7 @@ package ca.etsmtl.leakageanalysisplugin.windows;
 
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
@@ -45,7 +46,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
     private static class LeakageToolWindowContent {
         private final JPanel contentPanel = new JPanel();
-        private final ArrayList<LeakageTypeGUI> leakageTypeCounters = new ArrayList<>();
+        private final ArrayList<LeakageTypeGUI> leakageTypeContainers = new ArrayList<>();
 
         public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
             busConnection.subscribe(AnalyzeTaskListener.TOPIC, new AnalyzeTaskListener() {
@@ -68,7 +69,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
             for (LeakageType leakageType: LeakageType.values()) {
                 LeakageTypeGUI leakageTypeGUI = new LeakageTypeGUI(leakageType);
-                leakageTypeCounters.add(leakageTypeGUI);
+                leakageTypeContainers.add(leakageTypeGUI);
                 leakagePanel.add(leakageTypeGUI.getMainPanel());
             }
 
@@ -114,16 +115,25 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             if (results.isEmpty()) {
                 return;
             }
-            // first result
-            AnalysisResult result = results.get(0);
-            if (result.isSuccessful()) {
-                // errors need to displayed
-                for (LeakageTypeGUI counter : leakageTypeCounters) {
-                    LeakageType leakageType = counter.getType();
-                    Optional<Leakage> optLeakage = result.getLeakages().stream()
-                            .filter(l -> l.getType().equals(leakageType)).findFirst();
-                    optLeakage.ifPresent(leakage -> counter.setCount(String.valueOf(leakage.getCount())));
+
+            for (LeakageTypeGUI container: leakageTypeContainers) {
+                LeakageType leakageType = container.getType();
+
+                List<LeakageInstance> instances = new ArrayList<LeakageInstance>();
+
+                for (AnalysisResult result: results) {
+                    // TODO errors need to displayed
+                    if (result.isSuccessful()) {
+                        Optional<Leakage> optLeakage = result
+                                .getLeakages()
+                                .stream()
+                                .filter(l -> l.getType().equals(leakageType))
+                                .findFirst();
+                        optLeakage.ifPresent(leakage -> leakage.getLocations().stream().map(x -> new LeakageInstance(result.getFilePath(), x)));
+                    }
                 }
+
+                container.update(instances);
             }
         }
 
@@ -172,18 +182,14 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                 sb.append(File.separatorChar).append(nodes[i].toString());
             }
 
-            try {
-                // TODO: USE TASK INSTEAD (see analyzeSelectedFile(...))
-                LeakageService leakageApiService = project.getService(LeakageService.class);
-                AnalysisResult result = leakageApiService.analyze(sb.toString());
-                updateResults(List.of(result));
-            } catch (RuntimeException e) {
-                Notifier.notifyError(e.getMessage(), e.getCause().getMessage());
-            }
+            // TODO: USE TASK INSTEAD (see analyzeSelectedFile(...))
+            LeakageService leakageApiService = project.getService(LeakageService.class);
+            AnalysisResult result = leakageApiService.analyze(sb.toString());
+            updateResults(List.of(result));
         }
 
         private void reset() {
-            for (LeakageTypeGUI leakageType : leakageTypeCounters) {
+            for (LeakageTypeGUI leakageType : leakageTypeContainers) {
                 leakageType.reset();
             }
         }

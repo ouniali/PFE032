@@ -18,26 +18,13 @@ public class Leakage {
         return locations;
     }
 
-    public void setLocations(List<Integer> locations) {
-        this.locations = locations;
-    }
-
     public LeakageType getType() {
         return type;
-    }
-
-    public void setType(LeakageType type) {
-        this.type = type;
     }
 
     public int getCount() {
         return count;
     }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
     @Override
     public String toString() {
         return "Leakage{" +

@@ -3,6 +3,7 @@ package ca.etsmtl.leakageanalysisplugin.services;
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import com.intellij.openapi.components.Service;
 import okhttp3.*;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -31,20 +33,6 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     public AnalysisResult analyze(String filePath) {
-        AnalysisResult result;
-        try {
-            String fileName = uploadFile(filePath);
-            result = toAnalysisResult(filePath, analyzeFile(fileName));
-            result.setStatus(AnalysisStatus.SUCCESS);
-        } catch (RuntimeException e) {
-            result = new AnalysisResult(filePath);
-            result.setStatus(AnalysisStatus.FAILED);
-            result.setErrors(List.of(e));
-        }
-        return result;
-    }
-
-    public String uploadFile(String filePath) {
         if (!isFileSupported(filePath)) {
             throw new IllegalArgumentException("File not supported.");
         }
@@ -62,9 +50,10 @@ public final class HttpClientLeakageService implements LeakageService {
                 throw new IOException("Body is null");
             }
 
-            return response.body().string();
+            return toAnalysisResult(filePath, analyzeFile(response.body().string()));
         } catch (IOException e) {
-            throw new RuntimeException("There was an error uploading the file.", e);
+            Exception exception = new RuntimeException("There was an error uploading the file.", e);
+            return new AnalysisResult(filePath, List.of(exception));
         }
     }
 
@@ -87,18 +76,23 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     private AnalysisResult toAnalysisResult(String filePath, JSONObject jsonObject) {
-        List<Leakage> leakages = new ArrayList<>();
+        HashMap<LeakageType, ArrayList<LeakageInstance>> leakages = new HashMap();
+        for (LeakageType leakageType: LeakageType.values()) {
+            leakages.put(leakageType, new ArrayList<LeakageInstance>());
+        }
+
         for (String key : jsonObject.keySet()) {
             LeakageType leakageType = LeakageType.getLeakageType(key);
-            if (leakageType != null) {
-                JSONObject jsonLeakage = jsonObject.getJSONObject(key);
-                JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
-                int detected = jsonLeakage.getInt("# detected");
-                List<Integer> locations = new ArrayList<>();
-                for (int i = 0; i < jsonLocations.length(); i++) {
-                    locations.add(jsonLocations.getInt(i));
-                }
-                leakages.add(new Leakage(leakageType, locations, detected));
+            if (leakageType == null) {
+                continue;
+            }
+
+            ArrayList<LeakageInstance> instances = leakages.get(LeakageType.getLeakageType(key));
+            JSONObject jsonLeakage = jsonObject.getJSONObject(key);
+            JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
+
+            for (int i = 0; i < jsonLocations.length(); i++) {
+                instances.add(new LeakageInstance(i));
             }
         }
         return new AnalysisResult(filePath, leakages);
