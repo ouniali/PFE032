@@ -137,7 +137,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             try {
                 // TODO: USE TASK INSTEAD (see analyzeSelectedFile(...))
                 LeakageService leakageApiService = project.getService(LeakageService.class);
-                AnalysisResult result = leakageApiService.analyze(sb.toString());
+                AnalysisResult result = leakageApiService.analyzeFile(sb.toString());
                 updateResults(List.of(result));
             } catch (RuntimeException e) {
                 Notifier.notifyError(e.getMessage(), e.getCause().getMessage());

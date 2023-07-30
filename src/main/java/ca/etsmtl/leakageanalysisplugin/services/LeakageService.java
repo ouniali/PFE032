@@ -8,12 +8,12 @@ import java.util.List;
 
 public interface LeakageService {
 
-    AnalysisResult analyze(String filePath);
+    AnalysisResult analyzeFile(String filePath);
 
-    default List<AnalysisResult> analyze(@NotNull List<String> filePaths) {
+    default List<AnalysisResult> analyzeFiles(@NotNull List<String> filePaths) {
         List<AnalysisResult> results = new ArrayList<>();
         for (String filePath : filePaths) {
-            AnalysisResult result = analyze(filePath);
+            AnalysisResult result = analyzeFile(filePath);
             results.add(result);
         }
         return results;

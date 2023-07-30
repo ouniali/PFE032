@@ -31,11 +31,10 @@ public final class HttpClientLeakageService implements LeakageService {
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS).build();
     }
 
-    public AnalysisResult analyze(String filePath) {
+    public AnalysisResult analyzeFile(String filePath) {
         AnalysisResult result;
         try {
-            result = toAnalysisResult(filePath, analyzeFile(filePath));
-            result.setStatus(AnalysisStatus.SUCCESS);
+            result = executeAnalyzeRequest(filePath);
         } catch (RuntimeException e) {
             result = new AnalysisResult(filePath);
             result.setStatus(AnalysisStatus.FAILED);
@@ -44,7 +43,19 @@ public final class HttpClientLeakageService implements LeakageService {
         return result;
     }
 
-    private JSONObject analyzeFile(String filePath) {
+    private AnalysisResult executeAnalyzeRequest(String filePath) {
+        try {
+            Request request = buildAnalyzeRequest(filePath);
+            AnalysisResult result = toAnalysisResult(filePath, getAnalyzeRequestData(request));
+            result.setStatus(AnalysisStatus.SUCCESS);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("There was an error analysing the file.", e);
+        }
+    }
+
+    @NotNull
+    private static Request buildAnalyzeRequest(String filePath) {
         if (!isFileSupported(filePath)) {
             throw new IllegalArgumentException("File not supported.");
         }
@@ -52,12 +63,7 @@ public final class HttpClientLeakageService implements LeakageService {
         File file = new File(filePath);
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("file", file.getName(), RequestBody.create(file, ANALYZE_MEDIATYPE)).build();
-        Request request = new Request.Builder().url(url).post(requestBody).build();
-        try {
-            return getAnalyzeRequestData(request);
-        } catch (Exception e) {
-            throw new RuntimeException("There was an error analysing the file.", e);
-        }
+        return new Request.Builder().url(url).post(requestBody).build();
     }
 
     @NotNull
