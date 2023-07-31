@@ -52,13 +52,13 @@ extracted by the [Gradle](/build.gradle.kts) during the build process.
 To keep everything working, do not remove `<!-- ... -->` sections.
 <!-- Plugin description end -->
 
+## Deployment
+- Deploy plugin as zip file:
+  
+  Go to the Gradle Tool window and select
+  <kbd>Tasks</kbd> > <kbd>intellij</kbd> > <kbd>buildPlugin</kbd>
+
 ## Installation
-
-- Using IDE built-in plugin system:
-
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "PFE032"</kbd> >
-  <kbd>Install Plugin</kbd>
-
 - Manually:
 
   Download the [latest release](https://github.com/fwilhelmy/PFE032/releases/latest) and install it manually using
