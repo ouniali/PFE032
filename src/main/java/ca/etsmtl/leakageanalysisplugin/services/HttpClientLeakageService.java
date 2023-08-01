@@ -1,8 +1,7 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
-import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import okhttp3.*;
 import org.apache.http.HttpException;
@@ -14,6 +13,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +27,6 @@ public final class HttpClientLeakageService implements LeakageService {
 
     public HttpClientLeakageService() {
         client = new OkHttpClient().newBuilder()
-                //.callTimeout(timeout, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS).build();
     }
 
@@ -36,9 +35,7 @@ public final class HttpClientLeakageService implements LeakageService {
         try {
             result = executeAnalyzeRequest(filePath);
         } catch (RuntimeException e) {
-            result = new AnalysisResult(filePath);
-            result.setStatus(AnalysisStatus.FAILED);
-            result.setErrors(List.of(e));
+            result = new AnalysisResult(filePath, List.of(e));
         }
         return result;
     }
@@ -47,7 +44,6 @@ public final class HttpClientLeakageService implements LeakageService {
         try {
             Request request = buildAnalyzeRequest(filePath);
             AnalysisResult result = toAnalysisResult(filePath, getAnalyzeRequestData(request));
-            result.setStatus(AnalysisStatus.SUCCESS);
             return result;
         } catch (Exception e) {
             throw new RuntimeException("There was an error analysing the file.", e);
@@ -86,18 +82,23 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     private AnalysisResult toAnalysisResult(String filePath, JSONObject jsonObject) {
-        List<Leakage> leakages = new ArrayList<>();
+        HashMap<LeakageType, List<LeakageInstance>> leakages = new HashMap();
+        for (LeakageType leakageType: LeakageType.values()) {
+            leakages.put(leakageType, new ArrayList<LeakageInstance>());
+        }
+
         for (String key : jsonObject.keySet()) {
             LeakageType leakageType = LeakageType.getLeakageType(key);
-            if (leakageType != null) {
-                JSONObject jsonLeakage = jsonObject.getJSONObject(key);
-                JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
-                int detected = jsonLeakage.getInt("# detected");
-                List<Integer> locations = new ArrayList<>();
-                for (int i = 0; i < jsonLocations.length(); i++) {
-                    locations.add(jsonLocations.getInt(i));
-                }
-                leakages.add(new Leakage(leakageType, locations, detected));
+            if (leakageType == null) {
+                continue;
+            }
+
+            ArrayList<LeakageInstance> instances = (ArrayList<LeakageInstance>) leakages.get(LeakageType.getLeakageType(key));
+            JSONObject jsonLeakage = jsonObject.getJSONObject(key);
+            JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
+
+            for (int i = 0; i < jsonLocations.length(); i++) {
+                instances.add(new LeakageInstance(filePath, jsonLocations.getInt(i)));
             }
         }
         return new AnalysisResult(filePath, leakages);

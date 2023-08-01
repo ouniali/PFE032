@@ -34,7 +34,7 @@
 
             <action id="AnalyzeAction"
                     class="ca.etsmtl.leakageanalysisplugin.actions.AnalyzeAction"
-                    text="_Analyze"
+                    text="_Analyze for leakage(s)"
                     description="Analyze file or folder"
                     icon="AllIcons.Actions.DependencyAnalyzer"/>
         </group>

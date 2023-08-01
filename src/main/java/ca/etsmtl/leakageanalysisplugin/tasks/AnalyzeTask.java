@@ -69,7 +69,7 @@ public class AnalyzeTask extends Task.Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        if (filePaths == null) {
+        if (filePaths == null || filePaths.isEmpty()) {
             return;
         }
         // TODO: use progress indicator

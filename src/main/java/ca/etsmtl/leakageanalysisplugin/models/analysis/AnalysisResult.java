@@ -1,49 +1,50 @@
 package ca.etsmtl.leakageanalysisplugin.models.analysis;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
+import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class AnalysisResult {
 
     private String filePath;
 
-    private List<Leakage> leakages;
+    private HashMap<LeakageType, List<LeakageInstance>> leakages;
 
     private AnalysisStatus status;
     private List<Exception> errors;
 
-    public AnalysisResult(String filePath, List<Leakage> leakages) {
+    public AnalysisResult(String filePath, HashMap<LeakageType, List<LeakageInstance>> leakages) {
         this.filePath = filePath;
         this.leakages = leakages;
+        this.status = AnalysisStatus.SUCCESS;
     }
 
-    public AnalysisResult(String filePath) {
+    public AnalysisResult(String filePath, List<Exception> errors) {
         this.filePath = filePath;
+        this.errors = errors;
+        this.status = AnalysisStatus.FAILED;
     }
 
     public List<Exception> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<Exception> errors) {
-        this.errors = errors;
-    }
-
     public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public List<LeakageInstance> getLeakages(LeakageType leakageType) {
+        return leakages.get(leakageType);
     }
 
-    public List<Leakage> getLeakages() {
-        return leakages;
+    public AnalysisStatus getStatus() {
+        return status;
     }
 
-    public void setLeakages(List<Leakage> leakages) {
-        this.leakages = leakages;
+    public boolean isSuccessful() {
+        return status.equals(AnalysisStatus.SUCCESS);
     }
 
     @Override
@@ -54,17 +55,5 @@ public class AnalysisResult {
                 ", status=" + status +
                 ", errors=" + errors +
                 '}';
-    }
-
-    public AnalysisStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AnalysisStatus status) {
-        this.status = status;
-    }
-
-    public boolean isSuccessful() {
-        return status.equals(AnalysisStatus.SUCCESS);
     }
 }
