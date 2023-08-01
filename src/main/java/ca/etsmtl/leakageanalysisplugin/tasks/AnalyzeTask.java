@@ -73,7 +73,7 @@ public class AnalyzeTask extends Task.Backgroundable {
             return;
         }
         // TODO: use progress indicator
-        List<AnalysisResult> results = service.analyze(filePaths);
+        List<AnalysisResult> results = service.analyzeFiles(filePaths);
         MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
         AnalyzeTaskListener listener = bus.syncPublisher(AnalyzeTaskListener.TOPIC);
         listener.updateResults(results);

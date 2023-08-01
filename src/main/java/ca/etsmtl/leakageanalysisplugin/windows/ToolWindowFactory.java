@@ -2,7 +2,6 @@
 package ca.etsmtl.leakageanalysisplugin.windows;
 
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
@@ -48,13 +47,8 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         private final ArrayList<LeakageTypeGUI> leakageTypeContainers = new ArrayList<>();
 
         public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
-            busConnection.subscribe(AnalyzeTaskListener.TOPIC, new AnalyzeTaskListener() {
-                @Override
-                public void updateResults(List<AnalysisResult> results) {
-                    LeakageToolWindowContent.this.updateResults(results);
-                }
-            });
-
+            busConnection.subscribe(AnalyzeTaskListener.TOPIC,
+                    (AnalyzeTaskListener) LeakageToolWindowContent.this::updateResults);
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
             contentPanel.add(setupLeakagePanel(), BorderLayout.PAGE_START);
@@ -66,7 +60,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             JPanel leakagePanel = new JPanel();
             leakagePanel.setLayout(new VerticalFlowLayout());
 
-            for (LeakageType leakageType: LeakageType.values()) {
+            for (LeakageType leakageType : LeakageType.values()) {
                 LeakageTypeGUI leakageTypeGUI = new LeakageTypeGUI(leakageType);
                 leakageTypeContainers.add(leakageTypeGUI);
                 leakagePanel.add(leakageTypeGUI.getMainPanel());
@@ -164,7 +158,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
             // TODO: USE TASK INSTEAD (see analyzeSelectedFile(...))
             LeakageService leakageApiService = project.getService(LeakageService.class);
-            AnalysisResult result = leakageApiService.analyze(sb.toString());
+            AnalysisResult result = leakageApiService.analyzeFile(sb.toString());
             updateResults(List.of(result));
         }
 

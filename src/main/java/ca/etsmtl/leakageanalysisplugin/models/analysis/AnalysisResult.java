@@ -1,6 +1,5 @@
 package ca.etsmtl.leakageanalysisplugin.models.analysis;
 
-import ca.etsmtl.leakageanalysisplugin.models.leakage.Leakage;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 

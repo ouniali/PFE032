@@ -12,6 +12,7 @@ import java.awt.*;
 import java.util.List;
 
 public class LeakageTypeGUI {
+
     private final LeakageType leakageType;
 
     protected JPanel mainPanel;
