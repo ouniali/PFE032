@@ -1,10 +1,8 @@
 package ca.etsmtl.leakageanalysisplugin.services;
 
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
-import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
-import com.intellij.openapi.components.Service;
 import okhttp3.*;
 import org.apache.http.HttpException;
 import org.apache.http.entity.ContentType;
@@ -21,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static ca.etsmtl.leakageanalysisplugin.util.FilesUtil.isFileSupported;
 
-@Service(Service.Level.PROJECT)
 public final class HttpClientLeakageService implements LeakageService {
     public static final MediaType ANALYZE_MEDIATYPE = MediaType.parse("application/octet-stream");
     private static final String BASE_URL = "http://localhost:5000";
@@ -85,7 +82,7 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     private AnalysisResult toAnalysisResult(String filePath, JSONObject jsonObject) {
-        HashMap<LeakageType, ArrayList<LeakageInstance>> leakages = new HashMap();
+        HashMap<LeakageType, List<LeakageInstance>> leakages = new HashMap();
         for (LeakageType leakageType: LeakageType.values()) {
             leakages.put(leakageType, new ArrayList<LeakageInstance>());
         }
@@ -96,7 +93,7 @@ public final class HttpClientLeakageService implements LeakageService {
                 continue;
             }
 
-            ArrayList<LeakageInstance> instances = leakages.get(LeakageType.getLeakageType(key));
+            ArrayList<LeakageInstance> instances = (ArrayList<LeakageInstance>) leakages.get(LeakageType.getLeakageType(key));
             JSONObject jsonLeakage = jsonObject.getJSONObject(key);
             JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
 

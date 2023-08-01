@@ -3,7 +3,6 @@ package ca.etsmtl.leakageanalysisplugin.models.analysis;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,12 +10,12 @@ public class AnalysisResult {
 
     private String filePath;
 
-    private HashMap<LeakageType, ArrayList<LeakageInstance>> leakages;
+    private HashMap<LeakageType, List<LeakageInstance>> leakages;
 
     private AnalysisStatus status;
     private List<Exception> errors;
 
-    public AnalysisResult(String filePath, HashMap<LeakageType, ArrayList<LeakageInstance>> leakages) {
+    public AnalysisResult(String filePath, HashMap<LeakageType, List<LeakageInstance>> leakages) {
         this.filePath = filePath;
         this.leakages = leakages;
         this.status = AnalysisStatus.SUCCESS;
@@ -36,7 +35,7 @@ public class AnalysisResult {
         return filePath;
     }
 
-    public ArrayList<LeakageInstance> getLeakages(LeakageType leakageType) {
+    public List<LeakageInstance> getLeakages(LeakageType leakageType) {
         return leakages.get(leakageType);
     }
 

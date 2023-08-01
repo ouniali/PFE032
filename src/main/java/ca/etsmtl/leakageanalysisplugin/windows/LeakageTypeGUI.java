@@ -7,7 +7,6 @@ import ca.etsmtl.leakageanalysisplugin.util.FilesUtil;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.util.List;
 

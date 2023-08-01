@@ -4,7 +4,6 @@ package ca.etsmtl.leakageanalysisplugin.windows;
 import ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
-import ca.etsmtl.leakageanalysisplugin.notifications.Notifier;
 import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask;
 import ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTaskListener;
@@ -31,7 +30,6 @@ import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware {
     @Override
