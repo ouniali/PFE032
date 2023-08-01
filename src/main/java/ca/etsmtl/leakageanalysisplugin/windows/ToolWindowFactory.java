@@ -71,12 +71,6 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             JPanel controlsPanel = new JPanel();
 
             JButton analyzeSelectedFileButton = new JButton("Browse files");
-            controlsPanel.add(analyzeSelectedFileButton);
-            JButton analyzeCurrentFileButton = new JButton("Analyze current file");
-            controlsPanel.add(analyzeCurrentFileButton);
-            JButton resetButton = new JButton("Reset");
-            controlsPanel.add(resetButton);
-
             analyzeSelectedFileButton.addActionListener(e ->
             {
                 analyzeSelectedFileButton.setEnabled(false);
@@ -85,17 +79,21 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                 analyzeSelectedFileButton.setEnabled(true);
                 analyzeSelectedFileButton.setOpaque(false);
             });
+            controlsPanel.add(analyzeSelectedFileButton);
 
+            JButton analyzeCurrentFileButton = new JButton("Analyze current file");
             analyzeCurrentFileButton.addActionListener(e ->
             {
                 analyzeCurrentFile();
             });
+            controlsPanel.add(analyzeCurrentFileButton);
 
-
+            JButton resetButton = new JButton("Reset");
             resetButton.addActionListener(e ->
             {
                 reset();
             });
+            controlsPanel.add(resetButton);
 
             return controlsPanel;
         }
@@ -139,6 +137,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                 Notifier.notifyError(
                         "No file currently selected",
                         "You first need to open a file in the editor to start the analysis.");
+                return;
             }
 
             VirtualFile currentFile = FileDocumentManager.getInstance().getFile(view.getDocument());
