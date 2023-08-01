@@ -43,8 +43,7 @@ public final class HttpClientLeakageService implements LeakageService {
     private AnalysisResult executeAnalyzeRequest(String filePath) {
         try {
             Request request = buildAnalyzeRequest(filePath);
-            AnalysisResult result = toAnalysisResult(filePath, getAnalyzeRequestData(request));
-            return result;
+            return toAnalysisResult(filePath, getAnalyzeRequestData(request));
         } catch (Exception e) {
             throw new RuntimeException("There was an error analysing the file.", e);
         }
@@ -82,9 +81,9 @@ public final class HttpClientLeakageService implements LeakageService {
     }
 
     private AnalysisResult toAnalysisResult(String filePath, JSONObject jsonObject) {
-        HashMap<LeakageType, List<LeakageInstance>> leakages = new HashMap();
+        HashMap<LeakageType, List<LeakageInstance>> leakages = new HashMap<>();
         for (LeakageType leakageType: LeakageType.values()) {
-            leakages.put(leakageType, new ArrayList());
+            leakages.put(leakageType, new ArrayList<>());
         }
 
         for (String key : jsonObject.keySet()) {

@@ -104,7 +104,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             }
 
             for (LeakageTypeGUI container: leakageTypeContainers) {
-                List<LeakageInstance> instances = new ArrayList();
+                List<LeakageInstance> instances = new ArrayList<>();
                 for (AnalysisResult result: results) {
                     instances.addAll(result.getLeakages(container.getType()));
                 }
@@ -120,7 +120,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
             VirtualFile chooseFile = project.getBaseDir();
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-                    .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));;
+                    .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));
             VirtualFile file = FileChooser.chooseFile(descriptor, project, chooseFile);
             if (file == null) {
                 return;
@@ -142,6 +142,9 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
 
             VirtualFile currentFile = FileDocumentManager.getInstance().getFile(view.getDocument());
 
+            if (currentFile == null) {
+                return;
+            }
             String filePath = currentFile.getPath();
             new AnalyzeTask(project, List.of(filePath)).queue();
         }
