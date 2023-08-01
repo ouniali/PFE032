@@ -84,7 +84,7 @@ public final class HttpClientLeakageService implements LeakageService {
     private AnalysisResult toAnalysisResult(String filePath, JSONObject jsonObject) {
         HashMap<LeakageType, List<LeakageInstance>> leakages = new HashMap();
         for (LeakageType leakageType: LeakageType.values()) {
-            leakages.put(leakageType, new ArrayList<LeakageInstance>());
+            leakages.put(leakageType, new ArrayList());
         }
 
         for (String key : jsonObject.keySet()) {
@@ -93,7 +93,7 @@ public final class HttpClientLeakageService implements LeakageService {
                 continue;
             }
 
-            ArrayList<LeakageInstance> instances = (ArrayList<LeakageInstance>) leakages.get(LeakageType.getLeakageType(key));
+            List<LeakageInstance> instances = leakages.get(LeakageType.getLeakageType(key));
             JSONObject jsonLeakage = jsonObject.getJSONObject(key);
             JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
 
