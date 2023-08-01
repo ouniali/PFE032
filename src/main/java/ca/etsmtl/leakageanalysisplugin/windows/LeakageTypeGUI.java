@@ -3,9 +3,11 @@ package ca.etsmtl.leakageanalysisplugin.windows;
 
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance;
 import ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType;
+import ca.etsmtl.leakageanalysisplugin.util.FilesUtil;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.util.List;
 
@@ -54,16 +56,22 @@ public class LeakageTypeGUI {
     }
 
     private void addInstance(LeakageInstance instance) {
-        leakageInstancesPanel.add(new JLabel(String.format("%s: %s", instance.file, instance.line)));
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.darkGray);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        panel.add(new JLabel(String.format("%s: %s", FilesUtil.getFileName(instance.filePath), instance.line)));
+        leakageInstancesPanel.add(panel);
     }
 
     public void update(List<LeakageInstance> instances) {
-        setCount(instances.size());
-        setIcon((instances.size() == 0 ? AnalysisIcon.NOTDETECTED : AnalysisIcon.DETECTED).getIcon());
-
         for (LeakageInstance instance: instances) {
             addInstance(instance);
         }
+
+        int count = leakageInstancesPanel.getComponentCount();
+
+        setCount(count);
+        setIcon((count == 0 ? AnalysisIcon.NOTDETECTED : AnalysisIcon.DETECTED).getIcon());
     }
 
     public void reset() {

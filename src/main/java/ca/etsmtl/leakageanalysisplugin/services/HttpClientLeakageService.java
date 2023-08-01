@@ -92,7 +92,7 @@ public final class HttpClientLeakageService implements LeakageService {
             JSONArray jsonLocations = jsonLeakage.getJSONArray("location");
 
             for (int i = 0; i < jsonLocations.length(); i++) {
-                instances.add(new LeakageInstance(i));
+                instances.add(new LeakageInstance(filePath, jsonLocations.getInt(i)));
             }
         }
         return new AnalysisResult(filePath, leakages);

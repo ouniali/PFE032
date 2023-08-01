@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-// TODO Create Task: Cleanup the ToolWindow code (Rename correctly, etc..)
 public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -111,48 +110,29 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         }
 
         private void updateResults(List<AnalysisResult> results) {
-            // TODO: FILL WINDOW TOOL WITH RESULTS (WILL NEED APPROPRIATE LAYOUT)
             if (results.isEmpty()) {
                 return;
             }
 
             for (LeakageTypeGUI container: leakageTypeContainers) {
-                LeakageType leakageType = container.getType();
-
-                List<LeakageInstance> instances = new ArrayList<LeakageInstance>();
-
+                List<LeakageInstance> instances = new ArrayList();
                 for (AnalysisResult result: results) {
-                    // TODO errors need to displayed
-                    if (result.isSuccessful()) {
-                        Optional<Leakage> optLeakage = result
-                                .getLeakages()
-                                .stream()
-                                .filter(l -> l.getType().equals(leakageType))
-                                .findFirst();
-                        optLeakage.ifPresent(leakage -> leakage.getLocations().stream().map(x -> new LeakageInstance(result.getFilePath(), x)));
-                    }
+                    instances.addAll(result.getLeakages(container.getType()));
                 }
-
                 container.update(instances);
             }
         }
 
-        private VirtualFile selectFile() {
+        private void analyzeSelectedFile() {
             Project project = ProjectManager.getInstance().getOpenProjects()[0];
             if (project == null) {
-                return null;
+                return;
             }
 
             VirtualFile chooseFile = project.getBaseDir();
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
                     .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));;
-            return FileChooser.chooseFile(descriptor, project, chooseFile);
-        }
-
-        private void analyzeSelectedFile() {
-            Project project = ProjectManager.getInstance().getOpenProjects()[0];
-
-            VirtualFile file = selectFile();
+            VirtualFile file = FileChooser.chooseFile(descriptor, project, chooseFile);
             if (file == null) {
                 return;
             }
