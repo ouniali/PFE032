@@ -7,7 +7,6 @@ import ca.etsmtl.leakageanalysisplugin.services.LeakageService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,9 +71,8 @@ public class AnalyzeTask extends Task.Backgroundable {
         if (filePaths == null || filePaths.isEmpty()) {
             return;
         }
-        // TODO: use progress indicator
         List<AnalysisResult> results = service.analyzeFiles(filePaths);
-        MessageBus bus = ProjectManager.getInstance().getDefaultProject().getMessageBus();
+        MessageBus bus = getProject().getMessageBus();
         AnalyzeTaskListener listener = bus.syncPublisher(AnalyzeTaskListener.TOPIC);
         listener.updateResults(results);
         notifyResults(results);
