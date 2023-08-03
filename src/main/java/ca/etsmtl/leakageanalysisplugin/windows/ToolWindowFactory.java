@@ -50,7 +50,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
             contentPanel.add(setupLeakagePanel(), BorderLayout.PAGE_START);
-            contentPanel.add(setupButtonsPanel(toolWindow), BorderLayout.PAGE_END);
+            contentPanel.add(setupButtonsPanel(), BorderLayout.PAGE_END);
         }
 
         @NotNull
@@ -68,7 +68,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         }
 
         @NotNull
-        private JPanel setupButtonsPanel(ToolWindow toolWindow) {
+        private JPanel setupButtonsPanel() {
             JPanel controlsPanel = new JPanel();
 
             JButton analyzeSelectedFileButton = new JButton("Browse files");
@@ -83,17 +83,11 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             controlsPanel.add(analyzeSelectedFileButton);
 
             JButton analyzeCurrentFileButton = new JButton("Analyze current file");
-            analyzeCurrentFileButton.addActionListener(e ->
-            {
-                analyzeCurrentFile();
-            });
+            analyzeCurrentFileButton.addActionListener(e -> analyzeCurrentFile());
             controlsPanel.add(analyzeCurrentFileButton);
 
             JButton resetButton = new JButton("Reset");
-            resetButton.addActionListener(e ->
-            {
-                reset();
-            });
+            resetButton.addActionListener(e -> reset());
             controlsPanel.add(resetButton);
 
             return controlsPanel;
