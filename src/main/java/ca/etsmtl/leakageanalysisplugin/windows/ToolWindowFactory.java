@@ -16,13 +16,11 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.VerticalFlowLayout;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -33,8 +31,7 @@ import java.util.List;
 public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        MessageBusConnection busConnection = ProjectManager.getInstance().getDefaultProject().getMessageBus().connect();
-        LeakageToolWindowContent toolWindowContent = new LeakageToolWindowContent(toolWindow, busConnection);
+        LeakageToolWindowContent toolWindowContent = new LeakageToolWindowContent(toolWindow, project);
         Content content = ContentFactory.getInstance().createContent(toolWindowContent.getContentPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
@@ -42,14 +39,18 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
     private static class LeakageToolWindowContent {
         private final JPanel contentPanel = new JPanel();
         private final ArrayList<LeakageTypeGUI> leakageTypeContainers = new ArrayList<>();
+        private final Project project;
 
-        public LeakageToolWindowContent(ToolWindow toolWindow, MessageBusConnection busConnection) {
-            busConnection.subscribe(AnalyzeTaskListener.TOPIC,
-                    (AnalyzeTaskListener) LeakageToolWindowContent.this::updateResults);
+        public LeakageToolWindowContent(ToolWindow toolWindow, @NotNull Project project) {
+            this.project = project;
+            AnalyzeTaskListener listener = LeakageToolWindowContent.this::updateResults;
+            project.getMessageBus()
+                    .connect()
+                    .subscribe(AnalyzeTaskListener.TOPIC, listener);
             contentPanel.setLayout(new BorderLayout(0, 20));
             contentPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
             contentPanel.add(setupLeakagePanel(), BorderLayout.PAGE_START);
-            contentPanel.add(setupButtonsPanel(toolWindow), BorderLayout.PAGE_END);
+            contentPanel.add(setupButtonsPanel(), BorderLayout.PAGE_END);
         }
 
         @NotNull
@@ -67,7 +68,7 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         }
 
         @NotNull
-        private JPanel setupButtonsPanel(ToolWindow toolWindow) {
+        private JPanel setupButtonsPanel() {
             JPanel controlsPanel = new JPanel();
 
             JButton analyzeSelectedFileButton = new JButton("Browse files");
@@ -82,17 +83,11 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
             controlsPanel.add(analyzeSelectedFileButton);
 
             JButton analyzeCurrentFileButton = new JButton("Analyze current file");
-            analyzeCurrentFileButton.addActionListener(e ->
-            {
-                analyzeCurrentFile();
-            });
+            analyzeCurrentFileButton.addActionListener(e -> analyzeCurrentFile());
             controlsPanel.add(analyzeCurrentFileButton);
 
             JButton resetButton = new JButton("Reset");
-            resetButton.addActionListener(e ->
-            {
-                reset();
-            });
+            resetButton.addActionListener(e -> reset());
             controlsPanel.add(resetButton);
 
             return controlsPanel;
@@ -103,21 +98,18 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
                 return;
             }
 
-            for (LeakageTypeGUI container: leakageTypeContainers) {
+            for (LeakageTypeGUI container : leakageTypeContainers) {
                 List<LeakageInstance> instances = new ArrayList<>();
-                for (AnalysisResult result: results) {
-                    instances.addAll(result.getLeakages(container.getType()));
+                for (AnalysisResult result : results) {
+                    if (result.isSuccessful()) {
+                        instances.addAll(result.getLeakages(container.getType()));
+                    }
                 }
                 container.update(instances);
             }
         }
 
         private void analyzeSelectedFile() {
-            Project project = ProjectManager.getInstance().getOpenProjects()[0];
-            if (project == null) {
-                return;
-            }
-
             VirtualFile chooseFile = project.getBaseDir();
             FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
                     .withFileFilter(file -> FilesUtil.isExtensionSupported(file.getExtension()));
@@ -131,7 +123,6 @@ public class ToolWindowFactory implements com.intellij.openapi.wm.ToolWindowFact
         }
 
         private void analyzeCurrentFile() {
-            Project project = ProjectManager.getInstance().getOpenProjects()[0];
             Editor view = FileEditorManager.getInstance(project).getSelectedTextEditor();
             if (view == null) {
                 Notifier.notifyError(
