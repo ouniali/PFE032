@@ -21,6 +21,7 @@ public class AnalysisResultTest {
     private String filePath = "src/test/testData/testNotebook.ipynb";
     private List<Exception> errors;
     private String analysisToString;
+    private int line = 55;
 
     @Before
     public void setup(){
@@ -29,7 +30,7 @@ public class AnalysisResultTest {
         errors = new ArrayList<>();
 
         type = LeakageType.OVERLAP;
-        instances.add(new LeakageInstance(filePath, 55));
+        instances.add(new LeakageInstance(filePath, line));
         leakages.put(type, instances);
         errors.add(new Exception("error"));
         analysisToString = "AnalysisResult{" +
