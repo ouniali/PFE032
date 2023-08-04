@@ -19,7 +19,7 @@ public class AnalysisResultTest {
     private HashMap<LeakageType, List<LeakageInstance>> leakages;
     private LeakageType type;
     private List<LeakageInstance> instances;
-    private String filePath = "../testData/testNotebook.ipynb";
+    private String filePath = "src/test/testData/testNotebook.ipynb";
     private List<Exception> errors;
     private String analysisToString;
 
