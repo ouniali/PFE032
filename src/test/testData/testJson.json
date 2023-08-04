@@ -1,0 +1,17 @@
+{
+  "pre-processing leakage":
+  {
+    "# detected": 1,
+    "location": [13]
+  },
+  "overlap leakage":
+  {
+    "# detected": 2,
+    "location": [14, 15]
+  },
+  "no independence test data":
+  {
+    "# detected": 3,
+    "location": [16, 17, 18]
+  }
+}
