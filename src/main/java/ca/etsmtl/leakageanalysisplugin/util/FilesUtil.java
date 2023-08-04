@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class FilesUtil {
 
-    public static final String[] SUPPORTED_EXTS = {"ipynb"};
+    public static final String[] SUPPORTED_EXTS = {"ipynb", "py"};
 
     public static boolean isFileSupported(String filePath) {
         File file = new File(filePath);
