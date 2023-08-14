@@ -1,4 +1,6 @@
 @startuml
+skinparam linetype polyline
+
 class ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService {
 + {static} MediaType ANALYZE_MEDIATYPE
 - {static} String BASE_URL
@@ -91,7 +93,7 @@ class ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult {
 class ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory {
 + void createToolWindowContent(Project,ToolWindow)
 }
-class ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory$LeakageToolWindowContent {
+class ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent {
 - JPanel contentPanel
 - ArrayList<LeakageTypeGUI> leakageTypeContainers
 - Project project
@@ -115,8 +117,46 @@ enum ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType {
 + String toString()
 }
 
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult <-- ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult <-- ca.etsmtl.leakageanalysisplugin.services.LeakageService
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult <-- ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult <-- ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTaskListener
 
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus <-- ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult
+ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisStatus <-- ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask
+
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageTypeGUI
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance <-- ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageInstance <-- ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult
+
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType <-- ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageTypeGUI
+ca.etsmtl.leakageanalysisplugin.models.leakage.LeakageType <-- ca.etsmtl.leakageanalysisplugin.models.analysis.AnalysisResult
+
+ca.etsmtl.leakageanalysisplugin.notifications.Notifier <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.notifications.Notifier <-- ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask
+
+ca.etsmtl.leakageanalysisplugin.services.LeakageService <-- ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask
 ca.etsmtl.leakageanalysisplugin.services.LeakageService <|.. ca.etsmtl.leakageanalysisplugin.services.HttpClientLeakageService
-ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory <|.. ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory
-ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory +.. ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory$LeakageToolWindowContent
+
+ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask <-- ca.etsmtl.leakageanalysisplugin.actions.AnalyzeAction
+
+ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTaskListener <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTaskListener <|.. ca.etsmtl.leakageanalysisplugin.tasks.AnalyzeTask
+
+ca.etsmtl.leakageanalysisplugin.util.FilesUtil <-- ca.etsmtl.leakageanalysisplugin.actions.AnalyzeAction
+ca.etsmtl.leakageanalysisplugin.util.FilesUtil <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageTypeGUI
+ca.etsmtl.leakageanalysisplugin.util.FilesUtil <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+
+ca.etsmtl.leakageanalysisplugin.windows.AnalysisIcon <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageTypeGUI
+
+ca.etsmtl.leakageanalysisplugin.windows.LeakageTypeGUI <-- ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent
+
+ca.etsmtl.leakageanalysisplugin.windows.LeakageToolWindowContent <-- ca.etsmtl.leakageanalysisplugin.windows.ToolWindowFactory
+
+
 @enduml
